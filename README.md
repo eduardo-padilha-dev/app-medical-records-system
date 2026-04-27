@@ -1,4 +1,4 @@
-## Problem Track
+## Medical Records System
 
 O "Medical Records System" é um projeto desenvolvido para oferecer a clínicas e consultórios maior controle e organização no gerenciamento de prontuários médicos.
 
