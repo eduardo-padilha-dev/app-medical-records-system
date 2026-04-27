@@ -1,6 +1,6 @@
 ## Problem Track
 
-"Problem Track" is the ultimate solution for organizations seeking to enhance their problem resolution processes, drive operational efficiency, and deliver exceptional customer experiences.
+O "Medical Records System" é um projeto desenvolvido para oferecer a clínicas e consultórios maior controle e organização no gerenciamento de prontuários médicos.
 
 ### Dependências
 
@@ -12,8 +12,8 @@
 #### Clone Repository
 
 ```
-$ git clone git@github.com:SI-DABE/problem-track.git
-$ cd problem-track
+$ git clone git@github.com:eduardo-padilha-dev/app-medical-records-system.git
+$ cd app-medical-records-system
 ```
 
 #### Define the env variables
