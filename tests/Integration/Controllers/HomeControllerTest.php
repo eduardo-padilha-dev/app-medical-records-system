@@ -11,7 +11,7 @@ class HomeControllerTest extends ControllerTestCase
             controllerName: 'App\Controllers\HomeController'
         );
 
-        $this->assertMatchesRegularExpression('/<h1>\s*Home Page\s*<\/h1>/', $response);
+        $this->assertMatchesRegularExpression('/<p>\s*TSI3D Framework Template\s*<\/p>/', $response);
         $this->assertMatchesRegularExpression('/TSI3D Framework Template/', $response);
     }
 }
