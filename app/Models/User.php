@@ -10,7 +10,6 @@ use Core\Database\ActiveRecord\Model;
  * @property string $name
  * @property string $email
  * @property string $encrypted_password
- * 
  */
 class User extends Model
 {
