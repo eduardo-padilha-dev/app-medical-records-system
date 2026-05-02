@@ -13,7 +13,7 @@ class AdminOnly implements Middleware
         $user = Auth::user();
         if (!$user || !$user->isAdmin()) {
             FlashMessage::danger('Acesso restrito a administradores.');
-            header('Location: ' . route('root'));
+            header('Location: ' . route('auth.check'));
             exit;
         }
     }
