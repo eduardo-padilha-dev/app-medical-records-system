@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Lib\Validations;
 use Core\Database\ActiveRecord\Model;
+use App\Models\Doctor;
+use App\Models\Secretary;
+use App\Models\Patient;
 
 /**
  * @property int $id
@@ -18,6 +21,9 @@ class User extends Model
 
     protected ?string $password = null;
     protected ?string $password_confirmation = null;
+    private ?Doctor $cachedDoctor = null;
+    private ?Secretary $cachedSecretary = null;
+    private ?Patient $cachedPatient = null;
 
     public function validates(): void
     {
@@ -56,5 +62,46 @@ class User extends Model
         ) {
             $this->encrypted_password = password_hash($value, PASSWORD_DEFAULT);
         }
+    }
+
+    public function doctor(): ?Doctor
+    {
+        if ($this->cachedDoctor !== null) return $this->cachedDoctor;
+        return $this->cachedDoctor = Doctor::findByUserId($this->id);
+    }
+
+    public function secretary(): ?Secretary
+    {
+        if ($this->cachedSecretary !== null) return $this->cachedSecretary;
+        return $this->cachedSecretary = Secretary::findByUserId($this->id);
+    }
+
+    public function patient(): ?Patient
+    {
+        if ($this->cachedPatient !== null) return $this->cachedPatient;
+        return $this->cachedPatient = Patient::findByUserId($this->id);
+    }
+
+    public function isDoctor(): bool
+    {
+        return $this->doctor() !== null;
+    }
+
+    public function isSecretary(): bool
+    {
+        return $this->secretary() !== null;
+    }
+
+    public function isPatient(): bool
+    {
+        return $this->patient() !== null;
+    }
+
+    public function type(): ?string
+    {
+        if ($this->isDoctor()) return 'doctor';
+        if ($this->isSecretary()) return 'secretary';
+        if ($this->isPatient()) return 'patient';
+        return null;
     }
 }
