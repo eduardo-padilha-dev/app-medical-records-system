@@ -17,7 +17,8 @@ class AuthenticationsController extends Controller
         $this->render('auth/new', compact('title'));
     }
 
-    public function authenticate(Request $request): void {
+    public function authenticate(Request $request): void 
+    {
         $params = $request->getParam('users');
         if (!is_array($params)) {
             $params = [
@@ -48,7 +49,8 @@ class AuthenticationsController extends Controller
         return;
     }
 
-    public function destroy(): void {
+    public function destroy(): void 
+    {
         Auth::logout();
         FlashMessage::success('Logout realizado com sucesso!');
         $this->redirectTo(route('users.login'));
