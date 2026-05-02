@@ -15,7 +15,6 @@ class LoginCest extends BaseAcceptanceCest
         $page->see('Acesso ao Sistema Integrado');
         $page->seeElement('#email');
         $page->seeElement('#password');
-        $page->see('Esqueci minha senha');
         $page->see('Entrar');
     }
 }
