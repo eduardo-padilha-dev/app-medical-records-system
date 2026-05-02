@@ -6,16 +6,35 @@ use App\Models\User;
 
 class Auth
 {
-    public static function login($user): void
+    private static ?User $cachedUser = null;
+
+    private static function ensureSession(): void
     {
-        $_SESSION['user']['id'] = $user->id;
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+    }
+
+    public static function login(User $user): void
+    {
+        self::ensureSession();
+        session_regenerate_id(true);
+        $_SESSION['user'] = ['id' => $user->id];
+        self::$cachedUser = $user;
     }
 
     public static function user(): ?User
     {
+        self::ensureSession();
+
+        if(self::$cachedUser !==null){
+            return self::$cachedUser;
+        }
+
         if (isset($_SESSION['user']['id'])) {
-            $id = $_SESSION['user']['id'];
-            return User::findById($id);
+            $id = (int) $_SESSION['user']['id'];
+            self::$cachedUser = User::findById($id);
+            return self::$cachedUser;
         }
 
         return null;
@@ -28,6 +47,9 @@ class Auth
 
     public static function logout(): void
     {
-        unset($_SESSION['user']['id']);
+        self::ensureSession();
+        $_SESSION = [];
+        self::$cachedUser = null;
+        session_destroy();   
     }
 }

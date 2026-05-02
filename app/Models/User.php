@@ -40,7 +40,7 @@ class User extends Model
         return password_verify($password, $this->encrypted_password);
     }
 
-    public static function findByEmail(string $email): User | null
+    public static function findByEmail(string $email): ?User
     {
         return User::findBy(['email' => $email]);
     }
