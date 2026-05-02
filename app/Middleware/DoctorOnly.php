@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Middleware;
 
 use Core\Http\Middleware\Middleware;

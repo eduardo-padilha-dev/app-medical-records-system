@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Core\Database\ActiveRecord\Model;

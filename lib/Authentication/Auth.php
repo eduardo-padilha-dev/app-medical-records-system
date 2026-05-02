@@ -27,7 +27,7 @@ class Auth
     {
         self::ensureSession();
 
-        if(self::$cachedUser !==null){
+        if (self::$cachedUser !== null) {
             return self::$cachedUser;
         }
 
@@ -50,6 +50,6 @@ class Auth
         self::ensureSession();
         $_SESSION = [];
         self::$cachedUser = null;
-        session_destroy();   
+        session_destroy();
     }
 }

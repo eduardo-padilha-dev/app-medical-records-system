@@ -17,7 +17,7 @@ class AuthenticationsController extends Controller
         $this->render('auth/new', compact('title'));
     }
 
-    public function authenticate(Request $request): void 
+    public function authenticate(Request $request): void
     {
         $params = $request->getParam('users');
         if (!is_array($params)) {
@@ -53,12 +53,12 @@ class AuthenticationsController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user){
+        if (!$user) {
             $this->redirectTo(route('users.login'));
             return;
         }
 
-        if($user->isAdmin()){
+        if ($user->isAdmin()) {
             $this->redirectTo(route('admin.index'));
             return;
         }
@@ -68,12 +68,12 @@ class AuthenticationsController extends Controller
             return;
         }
 
-        if($user->isSecretary()){
+        if ($user->isSecretary()) {
             $this->redirectTo(route('secretary.index'));
             return;
         }
 
-        if($user->isPatient()){
+        if ($user->isPatient()) {
             $this->redirectTo(route('patient.index'));
             return;
         }
@@ -83,7 +83,7 @@ class AuthenticationsController extends Controller
         return;
     }
 
-    public function destroy(): void 
+    public function destroy(): void
     {
         Auth::logout();
         FlashMessage::success('Logout realizado com sucesso!');

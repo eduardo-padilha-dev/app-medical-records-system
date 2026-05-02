@@ -68,25 +68,33 @@ class User extends Model
 
     public function admin(): ?Admin
     {
-        if ($this->cachedAdmin !== null) return $this->cachedAdmin;
+        if ($this->cachedAdmin !== null) {
+            return $this->cachedAdmin;
+        }
         return $this->cachedAdmin = Admin::findByUserId($this->id);
     }
 
     public function doctor(): ?Doctor
     {
-        if ($this->cachedDoctor !== null) return $this->cachedDoctor;
+        if ($this->cachedDoctor !== null) {
+            return $this->cachedDoctor;
+        }
         return $this->cachedDoctor = Doctor::findByUserId($this->id);
     }
 
     public function secretary(): ?Secretary
     {
-        if ($this->cachedSecretary !== null) return $this->cachedSecretary;
+        if ($this->cachedSecretary !== null) {
+            return $this->cachedSecretary;
+        }
         return $this->cachedSecretary = Secretary::findByUserId($this->id);
     }
 
     public function patient(): ?Patient
     {
-        if ($this->cachedPatient !== null) return $this->cachedPatient;
+        if ($this->cachedPatient !== null) {
+            return $this->cachedPatient;
+        }
         return $this->cachedPatient = Patient::findByUserId($this->id);
     }
 
@@ -112,10 +120,18 @@ class User extends Model
 
     public function type(): ?string
     {
-        if ($this->isAdmin()) return 'admin';  
-        if ($this->isDoctor()) return 'doctor';
-        if ($this->isSecretary()) return 'secretary';
-        if ($this->isPatient()) return 'patient';
+        if ($this->isAdmin()) {
+            return 'admin';
+        }
+        if ($this->isDoctor()) {
+            return 'doctor';
+        }
+        if ($this->isSecretary()) {
+            return 'secretary';
+        }
+        if ($this->isPatient()) {
+            return 'patient';
+        }
         return null;
     }
 }
