@@ -6,14 +6,13 @@ use Core\Database\ActiveRecord\Model;
 /**
  * @property int $id
  * @property int $user_id
- * @property string $cpf
  * @property string $birth_date
  * @property string $phone
  */
 class Patient extends Model
 {
     protected static string $table = 'patients';
-    protected static array $columns = ['user_id', 'cpf', 'birth_date', 'phone'];
+    protected static array $columns = ['user_id', 'birth_date', 'phone'];
 
     public static function findByUserId(int $userId): ?Patient
     {

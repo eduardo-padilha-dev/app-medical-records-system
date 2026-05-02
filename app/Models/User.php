@@ -12,15 +12,17 @@ use App\Models\Patient;
  * @property int $id
  * @property string $name
  * @property string $email
+ * @property string $cpf
  * @property string $encrypted_password
  */
 class User extends Model
 {
     protected static string $table = 'users';
-    protected static array $columns = ['name', 'email', 'encrypted_password'];
+    protected static array $columns = ['name', 'cpf', 'email', 'encrypted_password'];
 
     protected ?string $password = null;
     protected ?string $password_confirmation = null;
+    private ?Admin $cachedAdmin = null;
     private ?Doctor $cachedDoctor = null;
     private ?Secretary $cachedSecretary = null;
     private ?Patient $cachedPatient = null;
@@ -64,6 +66,12 @@ class User extends Model
         }
     }
 
+    public function admin(): ?Admin
+    {
+        if ($this->cachedAdmin !== null) return $this->cachedAdmin;
+        return $this->cachedAdmin = Admin::findByUserId($this->id);
+    }
+
     public function doctor(): ?Doctor
     {
         if ($this->cachedDoctor !== null) return $this->cachedDoctor;
@@ -80,6 +88,11 @@ class User extends Model
     {
         if ($this->cachedPatient !== null) return $this->cachedPatient;
         return $this->cachedPatient = Patient::findByUserId($this->id);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->admin() !== null;
     }
 
     public function isDoctor(): bool
@@ -99,6 +112,7 @@ class User extends Model
 
     public function type(): ?string
     {
+        if ($this->isAdmin()) return 'admin';  
         if ($this->isDoctor()) return 'doctor';
         if ($this->isSecretary()) return 'secretary';
         if ($this->isPatient()) return 'patient';
