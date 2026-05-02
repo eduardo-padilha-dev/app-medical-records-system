@@ -10,7 +10,7 @@ use Core\Database\ActiveRecord\Model;
 class Secretary extends Model
 {
     protected static string $table = 'secretaries';
-    protected static array $columns = ['user_id', 'cpf'];
+    protected static array $columns = ['user_id'];
 
     public static function findByUserId(int $userId): ?Secretary
     {
