@@ -12,7 +12,7 @@ class LoginCest extends BaseAcceptanceCest
         $page->amOnPage('/login');
 
         $page->see('Medical Records');
-        $page->see('Acesso seguro ao sistema integrado.');
+        $page->see('Acesso ao Sistema Integrado');
         $page->seeElement('#email');
         $page->seeElement('#password');
         $page->see('Esqueci minha senha');

@@ -15,7 +15,7 @@ class AuthTest extends TestCase
     {
         parent::setUp();
         $_SESSION = [];
-        
+
         $this->user = new User([
             'name' => 'User 1',
             'email' => 'fulano@example.com',
