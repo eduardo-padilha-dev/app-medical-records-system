@@ -40,11 +40,45 @@ class AuthenticationsController extends Controller
 
         if ($user && $user->authenticate($password)) {
             Auth::login($user);
-            $this->redirectTo(route('root'));
+            $this->redirectTo(route('auth.check'));
             return;
         }
 
         FlashMessage::danger('E-mail e/ou senha inválidos!');
+        $this->redirectTo(route('users.login'));
+        return;
+    }
+
+    public function checkLogin(): void
+    {
+        $user = Auth::user();
+
+        if (!$user){
+            $this->redirectTo(route('users.login'));
+            return;
+        }
+
+        if($user->isAdmin()){
+            $this->redirectTo(route('admin.index'));
+            return;
+        }
+
+        if ($user->isDoctor()) {
+            $this->redirectTo(route('doctor.index'));
+            return;
+        }
+
+        if($user->isSecretary()){
+            $this->redirectTo(route('secretary.index'));
+            return;
+        }
+
+        if($user->isPatient()){
+            $this->redirectTo(route('patient.index'));
+            return;
+        }
+
+        Auth::logout();
         $this->redirectTo(route('users.login'));
         return;
     }
