@@ -57,6 +57,11 @@ class Route
         $this->middlewares[] = $middleware;
     }
 
+    public function prependMiddleware(Middleware $middleware): void
+    {
+        array_unshift($this->middlewares, $middleware);
+    }
+
     public function runMiddlewares(Request $request): void
     {
         foreach ($this->middlewares as $middleware) {
