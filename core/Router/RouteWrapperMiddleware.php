@@ -20,7 +20,7 @@ class RouteWrapperMiddleware
 
         for ($i = $routeSizeBefore; $i < $routeSizeAfter; $i++) {
             $route = Router::getInstance()->getRoute($i);
-            $route->addMiddleware($this->middlewareInstance());
+            $route->prependMiddleware($this->middlewareInstance());
         }
     }
 

@@ -12,6 +12,10 @@ class AuthenticationsController extends Controller
 {
     public function new(): void
     {
+        $user = Auth::user();
+        if ($user) {
+            $this->checkLogin();
+        }
         $this->layout = 'auth';
         $title = 'Login';
         $this->render('auth/new', compact('title'));
