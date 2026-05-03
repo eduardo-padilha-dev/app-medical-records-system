@@ -1,16 +1,27 @@
 SET foreign_key_checks = 0;
 
-DROP TABLE IF EXISTS users, doctors, secretaries, patients;
+DROP TABLE IF EXISTS users, admins, doctors, secretaries, patients;
 
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(50) NOT NULL,
+    cpf VARCHAR(14) NOT NULL,
     encrypted_password VARCHAR(255) NOT NULL,
     status BOOLEAN NOT NULL DEFAULT TRUE,
     created_at  DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY uq_users_email (email)
+) ENGINE=InnoDB;
+
+CREATE TABLE admins (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL UNIQUE,
+    phone VARCHAR(11),
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_admins_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE doctors (
@@ -27,7 +38,6 @@ CREATE TABLE doctors (
 CREATE TABLE secretaries ( 
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    cpf VARCHAR(14) NOT NULL,
     created_at     DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at     DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -37,7 +47,6 @@ CREATE TABLE secretaries (
 CREATE TABLE patients ( 
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    cpf VARCHAR(14) NOT NULL,
     birth_date DATE NOT NULL,
     phone VARCHAR(11) NOT NULL,
     created_at     DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,

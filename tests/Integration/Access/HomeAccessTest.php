@@ -22,7 +22,7 @@ class HomeAccessTest extends TestCase
     {
         $response = $this->client->get('/');
 
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertStringContainsString('Home Page', (string) $response->getBody());
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals('/login', $response->getHeader('Location')[0]);
     }
 }
