@@ -1,3 +1,38 @@
-.card.login {
-  width: 24rem;
+.auth-screen-wrap {
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+.card {
+    border-radius: 0.75rem;
+    border-color: #c3c6d6;
+}
+
+.btn-primary {
+    background-color: #0042ca;
+    border-color: #0042ca;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.btn-primary:hover {
+    background-color: #003ba3;
+    border-color: #003ba3;
+}
+
+.btn-primary:focus {
+    background-color: #0042ca;
+    border-color: #0042ca;
+    box-shadow: 0 0 0 0.25rem rgba(9, 66, 202, 0.5);
+}
+
+@media (max-width: 576px) {
+    .auth-screen-wrap {
+        padding: 0.75rem;
+    }
+
+    .card-body {
+        padding: 1rem !important;
+    }
 }
