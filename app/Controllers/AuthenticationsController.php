@@ -23,16 +23,8 @@ class AuthenticationsController extends Controller
 
     public function authenticate(Request $request): void
     {
-        $params = $request->getParam('users');
-        if (!is_array($params)) {
-            $params = [
-                'email' => $request->getParam('email') ?? null,
-                'password' => $request->getParam('password') ?? null,
-            ];
-        }
-
-        $email = trim((string)($params['email'] ?? ''));
-        $password = $params['password'] ?? '';
+        $email = $request->getParam('email');
+        $password = $request->getParam('password');
 
         if ($email === '' || $password === '') {
             FlashMessage::danger('Por favor preencha e-mail e senha.');
