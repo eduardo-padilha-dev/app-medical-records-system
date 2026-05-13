@@ -22,10 +22,6 @@ class User extends Model
 
     protected ?string $password = null;
     protected ?string $password_confirmation = null;
-    private ?Admin $cachedAdmin = null;
-    private ?Doctor $cachedDoctor = null;
-    private ?Secretary $cachedSecretary = null;
-    private ?Patient $cachedPatient = null;
 
     public function validates(): void
     {
@@ -68,34 +64,22 @@ class User extends Model
 
     public function admin(): ?Admin
     {
-        if ($this->cachedAdmin !== null) {
-            return $this->cachedAdmin;
-        }
-        return $this->cachedAdmin = Admin::findByUserId($this->id);
+        return Admin::findByUserId($this->id);
     }
 
     public function doctor(): ?Doctor
     {
-        if ($this->cachedDoctor !== null) {
-            return $this->cachedDoctor;
-        }
-        return $this->cachedDoctor = Doctor::findByUserId($this->id);
+        return Doctor::findByUserId($this->id);
     }
 
     public function secretary(): ?Secretary
     {
-        if ($this->cachedSecretary !== null) {
-            return $this->cachedSecretary;
-        }
-        return $this->cachedSecretary = Secretary::findByUserId($this->id);
+        return Secretary::findByUserId($this->id);
     }
 
     public function patient(): ?Patient
     {
-        if ($this->cachedPatient !== null) {
-            return $this->cachedPatient;
-        }
-        return $this->cachedPatient = Patient::findByUserId($this->id);
+        return Patient::findByUserId($this->id);
     }
 
     public function isAdmin(): bool
