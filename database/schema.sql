@@ -1,6 +1,6 @@
 SET foreign_key_checks = 0;
 
-DROP TABLE IF EXISTS users, admins, doctors, secretaries, patients;
+DROP TABLE IF EXISTS users, admins, doctors, secretaries, patients, appointments;
 
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -54,4 +54,20 @@ CREATE TABLE patients (
 
     CONSTRAINT fk_patients_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+CREATE TABLE appointments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT NOT NULL,
+    doctor_id INT NOT NULL,
+    secretary_id INT NOT NULL,
+    scheduled_at DATETIME NOT NULL,
+    status ENUM('scheduled', 'confirmed', 'completed', 'canceled') NOT NULL DEFAULT 'scheduled',
+    created_at     DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at     DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_appointments_patient_id FOREIGN KEY (patient_id) REFERENCES patients (id),
+    CONSTRAINT fk_appointments_doctor_id FOREIGN KEY (doctor_id) REFERENCES doctors (id),
+    CONSTRAINT fk_appointments_secretary_id FOREIGN KEY (secretary_id) REFERENCES secretaries (id)
+) ENGINE=InnoDB;
+
 SET foreign_key_checks = 1;
