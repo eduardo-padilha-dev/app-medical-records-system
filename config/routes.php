@@ -7,6 +7,7 @@ use App\Controllers\MedicalRecordsController;
 use App\Controllers\PatientsController;
 use App\Controllers\SecretariesController;
 use Core\Router\Route;
+use App\Controllers\AppointmentsController;
 
 // Authentication
 Route::get('/', [AuthenticationsController::class, 'checkLogin'])->name('auth.check');
@@ -64,4 +65,27 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/medical_records/{id}', [MedicalRecordsController::class, 'destroy'])
         ->name('medical_records.destroy');
+
+// CRUD de Agendamentos
+    Route::get('/appointments/new', [AppointmentsController::class, 'new'])
+       ->name('appointments.new');
+
+Route::get('/appointments', [AppointmentsController::class, 'index'])
+    ->name('appointments.index');
+
+Route::post('/appointments', [AppointmentsController::class, 'create'])
+    ->name('appointments.create');
+
+Route::get('/appointments/{id}', [AppointmentsController::class, 'show'])
+    ->name('appointments.show');
+
+Route::get('/appointments/{id}/edit', [AppointmentsController::class, 'edit'])
+    ->name('appointments.edit');
+
+Route::put('/appointments/{id}', [AppointmentsController::class, 'update'])
+    ->name('appointments.update');
+
+Route::delete('/appointments/{id}', [AppointmentsController::class, 'destroy'])
+    ->name('appointments.destroy');
+
 });

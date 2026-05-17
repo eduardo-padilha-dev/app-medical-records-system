@@ -1,174 +1,120 @@
 <?php
-
-/**
- * View: medical_record/edit.phtml
- * Variáveis recebidas:
- *   $medicalRecord — MedicalRecord (já persistido, com dados preenchidos)
- *   $patients      — array de Patient (para o <select>)
- */
-/**
- * View: medical_record/edit.phtml
- * Variáveis recebidas via extract() no Controller::render()
- *
- * @var App\Models\MedicalRecord      $medicalRecord
- * @var App\Models\Patient[]          $patients
- */
-
-use App\Models\User;
+/** @var string $title */
+/** @var App\Models\MedicalRecord $medicalRecord */
+/** @var array $patients */
 ?>
 
 <div class="container py-4">
 
-    <!-- Breadcrumb para orientação do usuário -->
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a href="<?= route('medical_records.index') ?>">Prontuários</a>
-            </li>
-            <li class="breadcrumb-item">
-                <a href="<?= route('medical_records.show', ['id' => $medicalRecord->id]) ?>">
-                    Prontuário #<?= $medicalRecord->id ?>
-                </a>
-            </li>
-            <li class="breadcrumb-item active">Editar</li>
-        </ol>
-    </nav>
+    <div class="mb-4">
+        <h1 class="h3 fw-bold text-primary mb-1">
+            <i class="bi bi-pencil-square me-2"></i>
+            <?= htmlspecialchars($title) ?>
+        </h1>
 
-    <h1 class="h3 fw-bold text-primary mb-4">
-        <i class="bi bi-pencil-square me-2"></i>Editar Prontuário #<?= $medicalRecord->id ?>
-    </h1>
+        <p class="text-muted mb-0">
+            Atualize os dados do prontuário médico.
+        </p>
+    </div>
 
     <div class="card border-0 shadow-sm">
-        <div class="card-body p-4">
+        <div class="card-body">
 
-            <!--
-                O formulário de edição usa POST + _method=PUT.
-                O framework intercepta o campo _method e roteio para o método PUT correto.
-            -->
-            <form method="POST"
-                action="<?= route('medical_records.update', ['id' => $medicalRecord->id]) ?>">
-
-                <!-- Spoofing do método HTTP — necessário porque HTML só suporta GET e POST -->
+            <form action="<?= route('medical_records.update', ['id' => $medicalRecord->id]) ?>" method="POST">
                 <input type="hidden" name="_method" value="PUT">
 
                 <div class="row g-3">
 
-                    <!-- Seleção de paciente -->
                     <div class="col-md-6">
-                        <label for="patient_id" class="form-label fw-semibold">
-                            Paciente <span class="text-danger">*</span>
+                        <label class="form-label fw-semibold">
+                            Paciente
                         </label>
-                        <select id="patient_id"
-                            name="patient_id"
-                            class="form-select <?= $medicalRecord->errors('patient_id') ? 'is-invalid' : '' ?>"
-                            required>
-                            <option value="">— selecione o paciente —</option>
+
+                        <select name="patient_id" class="form-select" required>
                             <?php foreach ($patients as $patient): ?>
-                                <?php $patientUser = User::findById($patient->user_id); ?>
-                                <option value="<?= $patient->id ?>"
-                                    <?= (string)$medicalRecord->patient_id === (string)$patient->id ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($patientUser?->name ?? 'Paciente #' . $patient->id) ?>
+                                <?php $patientUser = $patient->user(); ?>
+
+                                <option
+                                    value="<?= $patient->id ?>"
+                                    <?= $medicalRecord->patient_id == $patient->id ? 'selected' : '' ?>
+                                >
+                                    <?= htmlspecialchars($patientUser ? $patientUser->name : 'Paciente sem usuário') ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <?php if ($medicalRecord->errors('patient_id')): ?>
-                            <div class="invalid-feedback"><?= htmlspecialchars($medicalRecord->errors('patient_id')) ?></div>
-                        <?php endif; ?>
                     </div>
 
-                    <!-- Data do registro clínico -->
                     <div class="col-md-6">
-                        <label for="record_date" class="form-label fw-semibold">
-                            Data do Registro <span class="text-danger">*</span>
+                        <label class="form-label fw-semibold">
+                            Data do registro
                         </label>
-                        <input type="date"
-                            id="record_date"
+
+                        <input
+                            type="date"
                             name="record_date"
-                            class="form-control <?= $medicalRecord->errors('record_date') ? 'is-invalid' : '' ?>"
-                            value="<?= htmlspecialchars($medicalRecord->record_date ?? '') ?>"
-                            required>
-                        <?php if ($medicalRecord->errors('record_date')): ?>
-                            <div class="invalid-feedback"><?= htmlspecialchars($medicalRecord->errors('record_date')) ?></div>
-                        <?php endif; ?>
-                    </div>
-
-                    <!-- Consulta vinculada (opcional) -->
-                    <div class="col-md-6">
-                        <label for="appointment_id" class="form-label fw-semibold">
-                            Consulta Vinculada
-                            <span class="text-muted fw-normal">(opcional)</span>
-                        </label>
-                        <input type="number"
-                            id="appointment_id"
-                            name="appointment_id"
                             class="form-control"
-                            placeholder="ID da consulta"
-                            value="<?= htmlspecialchars($medicalRecord->appointment_id ?? '') ?>">
-                        <div class="form-text">Deixe em branco para remover o vínculo com consulta.</div>
+                            value="<?= htmlspecialchars($medicalRecord->record_date) ?>"
+                            required
+                        >
                     </div>
 
-                    <!-- Diagnóstico -->
                     <div class="col-12">
-                        <label for="diagnosis" class="form-label fw-semibold">
-                            Diagnóstico <span class="text-danger">*</span>
+                        <label class="form-label fw-semibold">
+                            Diagnóstico
                         </label>
-                        <textarea id="diagnosis"
+
+                        <textarea
                             name="diagnosis"
-                            rows="5"
-                            class="form-control <?= $medicalRecord->errors('diagnosis') ? 'is-invalid' : '' ?>"
-                            placeholder="Descreva o diagnóstico clínico..."
-                            required><?= htmlspecialchars($medicalRecord->diagnosis ?? '') ?></textarea>
-                        <?php if ($medicalRecord->errors('diagnosis')): ?>
-                            <div class="invalid-feedback"><?= htmlspecialchars($medicalRecord->errors('diagnosis')) ?></div>
-                        <?php endif; ?>
-                    </div>
-
-                    <!-- Prescrição -->
-                    <div class="col-12">
-                        <label for="prescription" class="form-label fw-semibold">
-                            Prescrição Médica
-                            <span class="text-muted fw-normal">(opcional)</span>
-                        </label>
-                        <textarea id="prescription"
-                            name="prescription"
+                            class="form-control"
                             rows="4"
-                            class="form-control"
-                            placeholder="Medicamentos, doses e instruções de uso..."><?= htmlspecialchars($medicalRecord->prescription ?? '') ?></textarea>
+                            required
+                        ><?= htmlspecialchars($medicalRecord->diagnosis ?? '') ?></textarea>
                     </div>
 
-                    <!-- Observações -->
                     <div class="col-12">
-                        <label for="notes" class="form-label fw-semibold">
-                            Observações
-                            <span class="text-muted fw-normal">(opcional)</span>
+                        <label class="form-label fw-semibold">
+                            Prescrição
                         </label>
-                        <textarea id="notes"
-                            name="notes"
-                            rows="3"
+
+                        <textarea
+                            name="prescription"
                             class="form-control"
-                            placeholder="Anotações clínicas adicionais, retorno, exames solicitados..."><?= htmlspecialchars($medicalRecord->notes ?? '') ?></textarea>
+                            rows="4"
+                        ><?= htmlspecialchars($medicalRecord->prescription ?? '') ?></textarea>
                     </div>
 
-                </div><!-- /.row -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">
+                            Observações
+                        </label>
 
-                <!-- Botões de ação -->
-                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-                    <!-- Link para excluir (à esquerda, como ação destrutiva secundária) -->
-                    <button type="button"
-                        class="btn btn-outline-danger btn-sm"
-                        data-bs-toggle="modal" data-bs-target="#modalDelete">
-                        <i class="bi bi-trash me-1"></i>Excluir prontuário
+                        <textarea
+                            name="notes"
+                            class="form-control"
+                            rows="4"
+                        ><?= htmlspecialchars($medicalRecord->notes ?? '') ?></textarea>
+                    </div>
+
+                    <input
+                        type="hidden"
+                        name="appointment_id"
+                        value="<?= htmlspecialchars($medicalRecord->appointment_id ?? '') ?>"
+                    >
+
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-between">
+                    <a href="<?= route('medical_records.show', ['id' => $medicalRecord->id]) ?>" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Voltar
+                    </a>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Atualizar Prontuário
                     </button>
-
-                    <div class="d-flex gap-2">
-                        <a href="<?= route('medical_records.show', ['id' => $medicalRecord->id]) ?>"
-                            class="btn btn-outline-secondary">
-                            <i class="bi bi-x-circle me-1"></i>Cancelar
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-floppy me-1"></i>Salvar Alterações
-                        </button>
-                    </div>
                 </div>
 
             </form>
@@ -176,31 +122,4 @@ use App\Models\User;
         </div>
     </div>
 
-</div>
-
-<!-- Modal de confirmação de exclusão -->
-<div class="modal fade" id="modalDelete" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header border-0">
-                <h5 class="modal-title text-danger">
-                    <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Exclusão
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                Tem certeza que deseja excluir o <strong>Prontuário #<?= $medicalRecord->id ?></strong>?
-                <br><span class="text-danger small">Esta ação não pode ser desfeita.</span>
-            </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form method="POST" action="/medical_records/<?= $medicalRecord->id ?>">
-                    <input type="hidden" name="_method" value="DELETE">
-                    <button type="submit" class="btn btn-danger">
-                        <i class="bi bi-trash me-1"></i>Excluir
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
 </div>

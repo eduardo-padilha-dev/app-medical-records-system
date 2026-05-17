@@ -22,6 +22,6 @@ class Patient extends Model
 
     public function user(): ?User
     {
-        return User::findById((int)$this->user_id);
+    return User::findById((int) $this->user_id);
     }
 }

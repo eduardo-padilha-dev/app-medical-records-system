@@ -1,6 +1,6 @@
 SET foreign_key_checks = 0;
 
-DROP TABLE IF EXISTS users, admins, doctors, secretaries, patients, appointments;
+DROP TABLE IF EXISTS medical_records, appointments, admins, doctors, secretaries, patients, users;
 
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -11,7 +11,8 @@ CREATE TABLE users (
     status BOOLEAN NOT NULL DEFAULT TRUE,
     created_at  DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_users_email (email)
+    UNIQUE KEY uq_users_email (email),
+    UNIQUE KEY uq_users_cpf (cpf)
 ) ENGINE=InnoDB;
 
 CREATE TABLE admins (
@@ -20,13 +21,13 @@ CREATE TABLE admins (
     phone VARCHAR(11),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     CONSTRAINT fk_admins_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE doctors (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    user_id INT NOT NULL UNIQUE,
     license_number VARCHAR(20) NOT NULL,
     specialty VARCHAR(60) NOT NULL,
     created_at     DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -35,18 +36,18 @@ CREATE TABLE doctors (
     CONSTRAINT fk_doctors_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE TABLE secretaries ( 
+CREATE TABLE secretaries (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    user_id INT NOT NULL UNIQUE,
     created_at     DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at     DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_secretaries_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE TABLE patients ( 
+CREATE TABLE patients (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    user_id INT NOT NULL UNIQUE,
     birth_date DATE NOT NULL,
     phone VARCHAR(11) NOT NULL,
     created_at     DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -74,14 +75,14 @@ CREATE TABLE medical_records (
     id              INT AUTO_INCREMENT PRIMARY KEY,
     patient_id      INT          NOT NULL,
     doctor_id       INT          NOT NULL,
-    appointment_id  INT          NULL,          
+    appointment_id  INT          NULL,
     record_date     DATE         NOT NULL,
-    diagnosis       TEXT         NOT NULL,      
-    prescription    TEXT         NULL,          
-    notes           TEXT         NULL,         
+    diagnosis       TEXT         NOT NULL,
+    prescription    TEXT         NULL,
+    notes           TEXT         NULL,
     created_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
- 
+
     CONSTRAINT fk_medical_records_patient
         FOREIGN KEY (patient_id)     REFERENCES patients(id)      ON DELETE CASCADE,
     CONSTRAINT fk_medical_records_doctor
@@ -89,6 +90,5 @@ CREATE TABLE medical_records (
     CONSTRAINT fk_medical_records_appointment
         FOREIGN KEY (appointment_id) REFERENCES appointments(id)  ON DELETE SET NULL
 ) ENGINE=InnoDB;
- 
 
 SET foreign_key_checks = 1;

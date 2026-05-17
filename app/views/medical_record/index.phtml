@@ -74,8 +74,8 @@ $currentUser = $this->currentUser();
                                 // Carrega os dados relacionados para exibição na tabela
                                 $patient = $record->patient();
                                 $doctor  = $record->doctor();
-                                $patientUser = $patient ? User::findById($patient->user_id) : null;
-                                $doctorUser  = $doctor  ? User::findById($doctor->user_id)  : null;
+                                $patientUser = $patient ? $patient->user() : null;
+                                $doctorUser = $doctor ? $doctor->user() : null;
                                 ?>
                                 <tr>
                                     <td class="ps-4 text-muted"><?= $record->id ?></td>
@@ -84,14 +84,14 @@ $currentUser = $this->currentUser();
                                         <div class="d-flex align-items-center gap-2">
                                             <span class="badge bg-light text-dark border">
                                                 <i class="bi bi-person me-1"></i>
-                                                <?= htmlspecialchars($patientUser?->name ?? 'Paciente desconhecido') ?>
+                                                <?= htmlspecialchars($patientUser ? $patientUser->name : 'Paciente desconhecido') ?>
                                             </span>
                                         </div>
                                     </td>
 
                                     <td>
                                         <span class="text-muted">
-                                            <?= htmlspecialchars($doctorUser?->name ?? 'Médico desconhecido') ?>
+                                            <?= htmlspecialchars($doctorUser ? $doctorUser->name : 'Médico desconhecido') ?>
                                         </span>
                                     </td>
 
