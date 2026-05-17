@@ -28,29 +28,29 @@ class MedicalRecordsController extends Controller
     // ------------------------------------------------------------------
 
     public function index(): void
-{
-    $user = $this->currentUser();
+    {
+        $user = $this->currentUser();
 
-    if ($user->isAdmin()) {
-        $medicalRecords = MedicalRecord::all();
-        $subtitle = 'Todos os Prontuários';
-    } elseif ($user->isDoctor()) {
-        $doctor = Doctor::findByUserId($user->id);
-        $medicalRecords = $doctor ? MedicalRecord::findByDoctorId($doctor->id) : [];
-        $subtitle = 'Meus Prontuários';
-    } elseif ($user->isPatient()) {
-        $patient = Patient::findByUserId($user->id);
-        $medicalRecords = $patient ? MedicalRecord::findByPatientId($patient->id) : [];
-        $subtitle = 'Meus Prontuários';
-    } else {
-        FlashMessage::danger('Você não tem permissão para acessar prontuários.');
-        $this->redirectTo(route('auth.check'));
-        return;
+        if ($user->isAdmin()) {
+            $medicalRecords = MedicalRecord::all();
+            $subtitle = 'Todos os Prontuários';
+        } elseif ($user->isDoctor()) {
+            $doctor = Doctor::findByUserId($user->id);
+            $medicalRecords = $doctor ? MedicalRecord::findByDoctorId($doctor->id) : [];
+            $subtitle = 'Meus Prontuários';
+        } elseif ($user->isPatient()) {
+            $patient = Patient::findByUserId($user->id);
+            $medicalRecords = $patient ? MedicalRecord::findByPatientId($patient->id) : [];
+            $subtitle = 'Meus Prontuários';
+        } else {
+            FlashMessage::danger('Você não tem permissão para acessar prontuários.');
+            $this->redirectTo(route('auth.check'));
+            return;
+        }
+
+        $title = 'Prontuários Médicos';
+        $this->render('medical_record/index', compact('title', 'subtitle', 'medicalRecords'));
     }
-
-    $title = 'Prontuários Médicos';
-    $this->render('medical_record/index', compact('title', 'subtitle', 'medicalRecords'));
-}
     // ------------------------------------------------------------------
     // SHOW — exibe um prontuário específico
     // ------------------------------------------------------------------
@@ -58,7 +58,9 @@ class MedicalRecordsController extends Controller
     public function show(Request $request): void
     {
         $medicalRecord = $this->findRecordOrRedirect($request);
-        if (!$medicalRecord) return;
+        if (!$medicalRecord) {
+            return;
+        }
 
         // Segurança: verifica se o usuário tem permissão para ver este registro
         if (!$this->canAccess($medicalRecord)) {
@@ -112,7 +114,7 @@ class MedicalRecordsController extends Controller
         $medicalRecord = new MedicalRecord([
             'patient_id'    => $request->getParam('patient_id'),
             'doctor_id'     => $doctor->id,  // sempre o médico logado
-            'appointment_id'=> $request->getParam('appointment_id') ?: null,
+            'appointment_id' => $request->getParam('appointment_id') ?: null,
             'record_date'   => $request->getParam('record_date'),
             'diagnosis'     => $request->getParam('diagnosis'),
             'prescription'  => $request->getParam('prescription') ?: null,
@@ -138,7 +140,9 @@ class MedicalRecordsController extends Controller
     public function edit(Request $request): void
     {
         $medicalRecord = $this->findRecordOrRedirect($request);
-        if (!$medicalRecord) return;
+        if (!$medicalRecord) {
+            return;
+        }
 
         if (!$this->canEdit($medicalRecord)) {
             FlashMessage::danger('Você não tem permissão para editar este prontuário.');
@@ -159,7 +163,9 @@ class MedicalRecordsController extends Controller
     public function update(Request $request): void
     {
         $medicalRecord = $this->findRecordOrRedirect($request);
-        if (!$medicalRecord) return;
+        if (!$medicalRecord) {
+            return;
+        }
 
         if (!$this->canEdit($medicalRecord)) {
             FlashMessage::danger('Você não tem permissão para editar este prontuário.');
@@ -170,7 +176,7 @@ class MedicalRecordsController extends Controller
         // Atualiza apenas os campos editáveis
         $data = [
             'patient_id'    => $request->getParam('patient_id'),
-            'appointment_id'=> $request->getParam('appointment_id') ?: null,
+            'appointment_id' => $request->getParam('appointment_id') ?: null,
             'record_date'   => $request->getParam('record_date'),
             'diagnosis'     => $request->getParam('diagnosis'),
             'prescription'  => $request->getParam('prescription') ?: null,
@@ -200,7 +206,9 @@ class MedicalRecordsController extends Controller
     public function destroy(Request $request): void
     {
         $medicalRecord = $this->findRecordOrRedirect($request);
-        if (!$medicalRecord) return;
+        if (!$medicalRecord) {
+            return;
+        }
 
         if (!$this->canEdit($medicalRecord)) {
             FlashMessage::danger('Você não tem permissão para excluir este prontuário.');
@@ -241,25 +249,25 @@ class MedicalRecordsController extends Controller
      * Médico vê os seus; paciente vê os seus; admin vê todos.
      */
     private function canAccess(MedicalRecord $record): bool
-{
-    $user = $this->currentUser();
+    {
+        $user = $this->currentUser();
 
-    if ($user->isAdmin()) {
-        return true;
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if ($user->isDoctor()) {
+            $doctor = Doctor::findByUserId($user->id);
+            return $doctor && (int)$record->doctor_id === (int)$doctor->id;
+        }
+
+        if ($user->isPatient()) {
+            $patient = Patient::findByUserId($user->id);
+            return $patient && (int)$record->patient_id === (int)$patient->id;
+        }
+
+        return false;
     }
-
-    if ($user->isDoctor()) {
-        $doctor = Doctor::findByUserId($user->id);
-        return $doctor && (int)$record->doctor_id === (int)$doctor->id;
-    }
-
-    if ($user->isPatient()) {
-        $patient = Patient::findByUserId($user->id);
-        return $patient && (int)$record->patient_id === (int)$patient->id;
-    }
-
-    return false;
-}
 
     /**
      * Verifica se o usuário logado pode EDITAR/EXCLUIR este prontuário.
@@ -269,7 +277,9 @@ class MedicalRecordsController extends Controller
     {
         $user = $this->currentUser();
 
-        if (!$user->isDoctor()) return false;
+        if (!$user->isDoctor()) {
+            return false;
+        }
 
         $doctor = Doctor::findByUserId($user->id);
         return $doctor && (int)$record->doctor_id === $doctor->id;

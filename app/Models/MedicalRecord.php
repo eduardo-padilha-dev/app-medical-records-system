@@ -6,21 +6,19 @@ use Core\Database\ActiveRecord\Model;
 use Lib\Validations;
 
 /**
- * Prontuário Médico
- *
- * @property int         $id
- * @property int         $patient_id
- * @property int         $doctor_id
- * @property int|null    $appointment_id
- * @property string      $record_date   — formato YYYY-MM-DD
- * @property string      $diagnosis
+ * @property int $id
+ * @property int $patient_id
+ * @property int $doctor_id
+ * @property int|null $appointment_id
+ * @property string $record_date
+ * @property string $diagnosis
  * @property string|null $prescription
  * @property string|null $notes
  */
 class MedicalRecord extends Model
 {
     protected static string $table   = 'medical_records';
-    protected static array  $columns = [
+    protected static array $columns = [
         'patient_id',
         'doctor_id',
         'appointment_id',
@@ -30,22 +28,14 @@ class MedicalRecord extends Model
         'notes',
     ];
 
-    // ------------------------------------------------------------------
-    // Validações
-    // ------------------------------------------------------------------
-
     public function validates(): void
     {
-        // Campos obrigatórios
-        Validations::notEmpty('patient_id',   $this);
-        Validations::notEmpty('doctor_id',    $this);
-        Validations::notEmpty('record_date',  $this);
-        Validations::notEmpty('diagnosis',    $this);
-    }
 
-    // ------------------------------------------------------------------
-    // Relacionamentos (retornam objetos diretamente — sem lazy-loading)
-    // ------------------------------------------------------------------
+        Validations::notEmpty('patient_id', $this);
+        Validations::notEmpty('doctor_id', $this);
+        Validations::notEmpty('record_date', $this);
+        Validations::notEmpty('diagnosis', $this);
+    }
 
     public function patient(): ?Patient
     {
@@ -57,17 +47,17 @@ class MedicalRecord extends Model
         return Doctor::findById((int) $this->doctor_id);
     }
 
-    // ------------------------------------------------------------------
-    // Queries auxiliares
-    // ------------------------------------------------------------------
-
-    /** Todos os prontuários de um paciente, do mais recente ao mais antigo */
+    /**
+      * @return array<MedicalRecord>
+    */
     public static function findByPatientId(int $patientId): array
     {
         return self::where(['patient_id' => $patientId]);
     }
 
-    /** Todos os prontuários criados por um médico */
+    /**
+      * @return array<MedicalRecord>
+    */
     public static function findByDoctorId(int $doctorId): array
     {
         return self::where(['doctor_id' => $doctorId]);
