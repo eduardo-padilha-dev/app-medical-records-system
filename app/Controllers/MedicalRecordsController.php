@@ -11,7 +11,6 @@ use Lib\FlashMessage;
 
 class MedicalRecordsController extends Controller
 {
-
     public function index(): void
     {
         $user = $this->currentUser();
