@@ -39,6 +39,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/medical_records', [MedicalRecordsController::class, 'index'])
         ->name('medical_records.index');
 
+    Route::get('/medical_records/page/{page}', [MedicalRecordsController::class, 'paginate'])
+        ->name('medical_records.paginate');
+
     Route::post('/medical_records', [MedicalRecordsController::class, 'create'])
         ->name('medical_records.create');
 

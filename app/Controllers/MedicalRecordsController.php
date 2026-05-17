@@ -8,23 +8,30 @@ use App\Models\Patient;
 use Core\Http\Controllers\Controller;
 use Core\Http\Request;
 use Lib\FlashMessage;
+use Lib\Paginator;
 
 class MedicalRecordsController extends Controller
 {
     public function index(): void
     {
+        $this->redirectTo(route('medical_records.paginate', ['page' => 1]));
+    }
+
+    public function paginate(Request $request): void
+    {
+        $page = max(1, (int) $request->getParam('page'));
         $user = $this->currentUser();
 
         if ($user->isAdmin()) {
-            $medicalRecords = MedicalRecord::all();
+            $conditions = [];
             $subtitle = 'Todos os Prontuários';
         } elseif ($user->isDoctor()) {
             $doctor = Doctor::findByUserId($user->id);
-            $medicalRecords = $doctor ? MedicalRecord::findByDoctorId($doctor->id) : [];
+            $conditions = ['doctor_id' => $doctor ? $doctor->id : 0];
             $subtitle = 'Meus Prontuários';
         } elseif ($user->isPatient()) {
             $patient = Patient::findByUserId($user->id);
-            $medicalRecords = $patient ? MedicalRecord::findByPatientId($patient->id) : [];
+            $conditions = ['patient_id' => $patient ? $patient->id : 0];
             $subtitle = 'Meus Prontuários';
         } else {
             FlashMessage::danger('Você não tem permissão para acessar prontuários.');
@@ -32,8 +39,17 @@ class MedicalRecordsController extends Controller
             return;
         }
 
+        $paginator = new Paginator(
+            MedicalRecord::class,
+            $page,
+            10,
+            MedicalRecord::table(),
+            MedicalRecord::columns(),
+            $conditions
+        );
+
         $title = 'Prontuários Médicos';
-        $this->render('medical_record/index', compact('title', 'subtitle', 'medicalRecords'));
+        $this->render('medical_record/index', compact('title', 'subtitle', 'paginator'));
     }
 
     public function show(Request $request): void
