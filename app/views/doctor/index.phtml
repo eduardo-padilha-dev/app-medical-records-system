@@ -1,5 +1,93 @@
-<p>Doctor</p>
-<form method="POST" action="/logout">
-    <input type="hidden" name="_method" value="DELETE">
-    <button type="submit" class="btn btn-primary py-2 d-flex align-items-center justify-content-center gap-2" > Sair </button>
-</form>
+<?php
+
+/** @var string $title */
+?>
+
+<div class="container py-4">
+
+    <p>Doctor</p>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold text-primary mb-1">
+                <i class="bi bi-file-medical me-2"></i>
+                Painel do Médico
+            </h1>
+
+            <p class="text-muted mb-0">
+                Gerencie prontuários médicos, acompanhe pacientes e registre atendimentos.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="mb-3 text-primary fs-2">
+                        <i class="bi bi-file-earmark-plus"></i>
+                    </div>
+
+                    <h5 class="card-title fw-bold">
+                        Novo Prontuário
+                    </h5>
+
+                    <p class="card-text text-muted">
+                        Cadastre um novo prontuário médico para um paciente atendido.
+                    </p>
+
+                    <a href="<?= route('medical_records.new') ?>" class="btn btn-primary">
+                        Criar Prontuário
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="mb-3 text-success fs-2">
+                        <i class="bi bi-journal-medical"></i>
+                    </div>
+
+                    <h5 class="card-title fw-bold">
+                        Prontuários
+                    </h5>
+
+                    <p class="card-text text-muted">
+                        Visualize, edite e acompanhe os prontuários criados por você.
+                    </p>
+
+                    <a href="<?= route('medical_records.index') ?>" class="btn btn-outline-success">
+                        Ver Prontuários
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="mb-3 text-info fs-2">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+
+                    <h5 class="card-title fw-bold">
+                        Agendamentos
+                    </h5>
+
+                    <p class="card-text text-muted">
+                        Consulte os agendamentos vinculados ao seu atendimento médico.
+                    </p>
+
+                    <a href="<?= route('appointments.index') ?>" class="btn btn-outline-info">
+                        Ver Agendamentos
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

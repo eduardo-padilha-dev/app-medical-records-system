@@ -2,21 +2,22 @@
 
 namespace Lib;
 
+use Core\Database\ActiveRecord\Model;
 use Core\Database\Database;
 
 class Validations
 {
-    public static function notEmpty($attribute, $obj)
+    public static function notEmpty(string $attribute, Model $obj, string $message = 'não pode ser vazio!'): bool
     {
         if ($obj->$attribute === null || $obj->$attribute === '') {
-            $obj->addError($attribute, 'não pode ser vazio!');
+            $obj->addError($attribute, $message);
             return false;
         }
 
         return true;
     }
 
-    public static function passwordConfirmation($obj)
+    public static function passwordConfirmation(Model $obj): bool
     {
         if ($obj->password !== $obj->password_confirmation) {
             $obj->addError('password', 'as senhas devem ser idênticas!');
@@ -26,7 +27,7 @@ class Validations
         return true;
     }
 
-    public static function uniqueness($fields, $object)
+    public static function uniqueness(string|array $fields, Model $object): bool
     {
         $dbFieldsValues = [];
         $objFieldValues = [];
