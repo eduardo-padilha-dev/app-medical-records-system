@@ -1,0 +1,125 @@
+<?php
+/** @var string $title */
+/** @var App\Models\MedicalRecord $medicalRecord */
+/** @var array $patients */
+?>
+
+<div class="container py-4">
+
+    <div class="mb-4">
+        <h1 class="h3 fw-bold text-primary mb-1">
+            <i class="bi bi-pencil-square me-2"></i>
+            <?= htmlspecialchars($title) ?>
+        </h1>
+
+        <p class="text-muted mb-0">
+            Atualize os dados do prontuário médico.
+        </p>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+
+            <form action="<?= route('medical_records.update', ['id' => $medicalRecord->id]) ?>" method="POST">
+                <input type="hidden" name="_method" value="PUT">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            Paciente
+                        </label>
+
+                        <select name="patient_id" class="form-select" required>
+                            <?php foreach ($patients as $patient): ?>
+                                <?php $patientUser = $patient->user(); ?>
+
+                                <option
+                                    value="<?= $patient->id ?>"
+                                    <?= $medicalRecord->patient_id == $patient->id ? 'selected' : '' ?>
+                                >
+                                    <?= htmlspecialchars($patientUser ? $patientUser->name : 'Paciente sem usuário') ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            Data do registro
+                        </label>
+
+                        <input
+                            type="date"
+                            name="record_date"
+                            class="form-control"
+                            value="<?= htmlspecialchars($medicalRecord->record_date) ?>"
+                            required
+                        >
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">
+                            Diagnóstico
+                        </label>
+
+                        <textarea
+                            name="diagnosis"
+                            class="form-control"
+                            rows="4"
+                            required
+                        ><?= htmlspecialchars($medicalRecord->diagnosis ?? '') ?></textarea>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">
+                            Prescrição
+                        </label>
+
+                        <textarea
+                            name="prescription"
+                            class="form-control"
+                            rows="4"
+                        ><?= htmlspecialchars($medicalRecord->prescription ?? '') ?></textarea>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">
+                            Observações
+                        </label>
+
+                        <textarea
+                            name="notes"
+                            class="form-control"
+                            rows="4"
+                        ><?= htmlspecialchars($medicalRecord->notes ?? '') ?></textarea>
+                    </div>
+
+                    <input
+                        type="hidden"
+                        name="appointment_id"
+                        value="<?= htmlspecialchars($medicalRecord->appointment_id ?? '') ?>"
+                    >
+
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-between">
+                    <a href="<?= route('medical_records.show', ['id' => $medicalRecord->id]) ?>" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Voltar
+                    </a>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Atualizar Prontuário
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
