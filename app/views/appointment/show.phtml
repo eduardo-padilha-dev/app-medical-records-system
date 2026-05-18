@@ -1,0 +1,109 @@
+<?php
+/** @var string $title */
+/** @var App\Models\Appointment $appointment */
+/** @var App\Models\Patient|null $patient */
+/** @var App\Models\Doctor|null $doctor */
+/** @var App\Models\Secretary|null $secretary */
+
+$patientUser = $patient ? $patient->user() : null;
+$doctorUser = $doctor ? $doctor->user() : null;
+$secretaryUser = $secretary ? $secretary->user() : null;
+
+$statusClass = 'secondary';
+$statusText = $appointment->status;
+
+if ($appointment->status === 'scheduled') {
+    $statusClass = 'warning';
+    $statusText = 'Agendado';
+} elseif ($appointment->status === 'confirmed') {
+    $statusClass = 'primary';
+    $statusText = 'Confirmado';
+} elseif ($appointment->status === 'completed') {
+    $statusClass = 'success';
+    $statusText = 'Concluído';
+} elseif ($appointment->status === 'canceled') {
+    $statusClass = 'danger';
+    $statusText = 'Cancelado';
+}
+?>
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold text-primary mb-1">
+                <i class="bi bi-calendar-event me-2"></i>
+                <?= $title ?>
+            </h1>
+
+            <p class="text-muted mb-0">
+                Detalhes completos do agendamento.
+            </p>
+        </div>
+
+        <span class="badge text-bg-<?= $statusClass ?> fs-6">
+            <?= $statusText ?>
+        </span>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+
+            <div class="row g-4">
+
+                <div class="col-md-6">
+                    <div class="p-3 border rounded bg-light h-100">
+                        <small class="text-muted d-block mb-1">Paciente</small>
+                        <strong>
+                            <?= $patientUser ? $patientUser->name : 'Paciente não encontrado' ?>
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 border rounded bg-light h-100">
+                        <small class="text-muted d-block mb-1">Médico</small>
+                        <strong>
+                            <?= $doctorUser ? $doctorUser->name : 'Médico não encontrado' ?>
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 border rounded bg-light h-100">
+                        <small class="text-muted d-block mb-1">Secretária</small>
+                        <strong>
+                            <?= $secretaryUser ? $secretaryUser->name : 'Secretária não encontrada' ?>
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 border rounded bg-light h-100">
+                        <small class="text-muted d-block mb-1">Data e hora</small>
+                        <strong>
+                            <?= date('d/m/Y H:i', strtotime($appointment->scheduled_at)) ?>
+                        </strong>
+                    </div>
+                </div>
+
+            </div>
+
+            <hr class="my-4">
+
+            <div class="d-flex justify-content-between">
+                <a href="<?= route('appointments.index') ?>" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Voltar
+                </a>
+
+                <a href="<?= route('appointments.edit', ['id' => $appointment->id]) ?>" class="btn btn-primary">
+                    <i class="bi bi-pencil me-1"></i>
+                    Editar Agendamento
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
