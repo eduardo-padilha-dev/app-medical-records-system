@@ -60,7 +60,7 @@ class AuthenticationsController extends Controller
         }
 
         if ($user->isDoctor()) {
-            $this->redirectTo(route('medical_records.index'));
+            $this->redirectTo(route('doctor.index'));
             return;
         }
 

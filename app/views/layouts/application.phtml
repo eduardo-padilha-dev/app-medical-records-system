@@ -1,64 +1,27 @@
-<?php
-/** @var string $title */
-/** @var string $view */
-
-$currentUser = $this->currentUser();
-?>
-
 <html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($title ?? 'Medical Records System') ?> - Medical Records System</title>
+    <title><?= $title ?> - Medical Records System</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="/assets/js/application.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/assets/css/application.css">
     <link rel="stylesheet" href="/assets/css/login.css">
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
-    <script src="/assets/js/application.js" defer></script>
 </head>
 
-<body class="bg-light">
-
-    <?php if ($currentUser): ?>
-        <nav class="navbar navbar-expand-lg bg-white border-bottom shadow-sm">
-            <div class="container-fluid px-4">
-
-                <a class="navbar-brand fw-bold text-primary" href="<?= route('auth.check') ?>">
-                    <i class="bi bi-hospital me-2"></i>
-                    Medical Records
-                </a>
-
-                <div class="d-flex align-items-center gap-3">
-                    <span class="text-muted small">
-                        <?= htmlspecialchars($currentUser->name ?? 'Usuário') ?>
-                    </span>
-
-                    <form method="POST" action="<?= route('users.logout') ?>" class="mb-0">
-                        <input type="hidden" name="_method" value="DELETE">
-
-                        <button type="submit" class="btn btn-outline-danger btn-sm">
-                            <i class="bi bi-box-arrow-right me-1"></i>
-                            Sair
-                        </button>
-                    </form>
-                </div>
-
-            </div>
-        </nav>
-    <?php endif; ?>
-
-    <main class="container-fluid py-3">
+<body>
+    <main class="container-fluid">
 
         <?php require '_flash_message.phtml'; ?>
 
-        <?php require $view; ?>
+        <?php require $view ?>
 
     </main>
-
 </body>
 
 </html>
