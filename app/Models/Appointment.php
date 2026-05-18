@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Core\Database\ActiveRecord\Model;
+use Core\Database\ActiveRecord\BelongsTo;
 use Lib\Validations;
+use Core\Database\ActiveRecord\Model;
 
 /**
  * @property int $id
@@ -16,61 +17,29 @@ use Lib\Validations;
 class Appointment extends Model
 {
     protected static string $table = 'appointments';
-
-    protected static array $columns = [
-        'patient_id',
-        'doctor_id',
-        'secretary_id',
-        'scheduled_at',
-        'status',
-    ];
+    protected static array $columns = ['patient_id', 'doctor_id', 'secretary_id', 'scheduled_at', 'status'];
 
     public function validates(): void
     {
         Validations::notEmpty('patient_id', $this);
         Validations::notEmpty('doctor_id', $this);
-        Validations::notEmpty('secretary_id', $this);
         Validations::notEmpty('scheduled_at', $this);
-        Validations::notEmpty('status', $this);
+
+        Validations::uniqueness(['scheduled_at', 'doctor_id'], $this);
     }
 
-    public function patient(): ?Patient
+    public function doctor(): BelongsTo
     {
-        return Patient::findById((int) $this->patient_id);
+        return $this->belongsTo(Doctor::class, 'fk_appointments_doctor_id');
     }
 
-    public function doctor(): ?Doctor
+    public function patient(): BelongsTo
     {
-        return Doctor::findById((int) $this->doctor_id);
+        return $this->belongsTo(Patient::class, 'fk_appointments_patient_id');
     }
 
-    public function secretary(): ?Secretary
+    public function secretary(): BelongsTo
     {
-        return Secretary::findById((int) $this->secretary_id);
-    }
-
-    /**
-      * @return array<Appointment>
-    */
-    public static function findByDoctorId(int $doctorId): array
-    {
-        return self::where(['doctor_id' => $doctorId]);
-    }
-
-    /**
-      * @return array<Appointment>
-    */
-    public static function findByPatientId(int $patientId): array
-    {
-        return self::where(['patient_id' => $patientId]);
-    }
-
-
-    /**
-      * @return array<Appointment>
-    */
-    public static function findBySecretaryId(int $secretaryId): array
-    {
-        return self::where(['secretary_id' => $secretaryId]);
+        return $this->belongsTo(Secretary::class, 'fk_appointments_secretary_id');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Core\Database\ActiveRecord\HasMany;
 use Core\Database\ActiveRecord\Model;
 
 /**
@@ -23,5 +24,10 @@ class Patient extends Model
     public function user(): ?User
     {
         return User::findById((int) $this->user_id);
+    }
+
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class, 'fk_appointments_patient_id');
     }
 }
