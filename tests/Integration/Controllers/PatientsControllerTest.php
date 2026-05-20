@@ -11,6 +11,6 @@ class PatientsControllerTest extends ControllerTestCase
             controllerName: 'App\Controllers\PatientsController'
         );
 
-        $this->assertStringContainsString('<p>Patient</p>', $response);
+        $this->assertStringContainsString('Painel do Paciente', $response);
     }
 }

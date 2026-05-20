@@ -230,6 +230,24 @@ abstract class Model
         return ($stmt->rowCount() != 0);
     }
 
+        public function softDelete(): bool
+    {
+        $table = static::$table;
+
+        $sql = <<<SQL
+            UPDATE {$table} SET deleted_at = NOW() WHERE id = :id AND deleted_at IS NULL;
+        SQL;
+
+        $pdo = Database::getDatabaseConn();
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':id', $this->id);
+
+        $stmt->execute();
+
+        return ($stmt->rowCount() != 0);
+    }
+
     public static function findById(int $id): static|null
     {
         $pdo = Database::getDatabaseConn();
@@ -306,9 +324,14 @@ abstract class Model
             SELECT id, {$attributes} FROM {$table} WHERE 
         SQL;
 
-        $sqlConditions = array_map(function ($column) {
-            return "{$column} = :{$column}";
-        }, array_keys($conditions));
+        $sqlConditions = [];
+        foreach ($conditions as $column => $value) {
+            if ($value === null) {
+                $sqlConditions[] = "{$column} IS NULL";
+            } else {
+                $sqlConditions[] = "{$column} = :{$column}";
+            }
+        }
 
         $sql .= implode(' AND ', $sqlConditions);
 
@@ -316,7 +339,9 @@ abstract class Model
         $stmt = $pdo->prepare($sql);
 
         foreach ($conditions as $column => $value) {
-            $stmt->bindValue($column, $value);
+            if ($value !== null) {
+                $stmt->bindValue($column, $value);
+            }
         }
 
         $stmt->execute();
