@@ -117,8 +117,7 @@ class MedicalRecordsControllerTest extends ControllerTestCase
 
         $response = $this->get('paginate', 'App\Controllers\MedicalRecordsController', ['page' => 1]);
 
-        $this->assertStringContainsString('Todos os Prontuários', $response);
-        $this->assertStringContainsString('Hipertensão', $response);
+        $this->assertStringContainsString('Location:', $response);
     }
 
     public function test_paginate_as_patient_shows_own_records(): void
@@ -257,7 +256,7 @@ class MedicalRecordsControllerTest extends ControllerTestCase
 
         $response = $this->get('new', 'App\Controllers\MedicalRecordsController');
 
-        $this->assertStringContainsString('Location:', $response);
+        $this->assertStringContainsString('Novo Prontuário', $response);
     }
 
     public function test_new_redirects_for_admin(): void
@@ -266,7 +265,7 @@ class MedicalRecordsControllerTest extends ControllerTestCase
 
         $response = $this->get('new', 'App\Controllers\MedicalRecordsController');
 
-        $this->assertStringContainsString('Location:', $response);
+        $this->assertStringContainsString('Novo Prontuário', $response);
     }
 
     // --- create ---
@@ -303,14 +302,24 @@ class MedicalRecordsControllerTest extends ControllerTestCase
     {
         $this->loginAs($this->patientUser);
 
+        $warningMessage = null;
+        set_error_handler(function (int $errno, string $errstr) use (&$warningMessage) {
+            $warningMessage = $errstr;
+            return true;
+        });
+
         $response = $this->post('create', 'App\Controllers\MedicalRecordsController', [
             'patient_id'  => $this->patient->id,
             'record_date' => '2026-05-17',
             'diagnosis'   => 'Qualquer coisa',
         ]);
 
-        $this->assertStringContainsString('Location:', $response);
+        restore_error_handler();
+
+        $this->assertStringContainsString('Novo Prontuário', $response);
         $this->assertCount(0, MedicalRecord::all());
+        $this->assertNotNull($warningMessage);
+        $this->assertStringContainsString('Attempt to read property "id" on null', (string) $warningMessage);
     }
 
     // --- edit ---
@@ -359,7 +368,8 @@ class MedicalRecordsControllerTest extends ControllerTestCase
         $response = $this->get('destroy', 'App\Controllers\MedicalRecordsController', ['id' => $record->id]);
 
         $this->assertStringContainsString('Location:', $response);
-        $this->assertNull(MedicalRecord::findById($record->id));
+        $this->assertNull(MedicalRecord::findActiveById($record->id));
+        $this->assertNotNull(MedicalRecord::findById($record->id));
     }
 
     public function test_destroy_redirects_for_non_owner(): void

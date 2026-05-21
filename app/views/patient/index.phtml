@@ -1,1 +1,93 @@
-<p>Patient</p>
+<?php
+
+/** @var string $title */
+?>
+
+<div class="container py-4">
+
+    <p>Paciente</p>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold text-primary mb-1">
+                <i class="bi bi-file-medical me-2"></i>
+                Painel do Paciente
+            </h1>
+
+            <p class="text-muted mb-0">
+                Acesso aos seus agendamentos, exames e prontuários. 
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="mb-3 text-primary fs-2">
+                        <i class="bi bi-file-earmark-plus"></i>
+                    </div>
+
+                    <h5 class="card-title fw-bold">
+                        Exames
+                    </h5>
+
+                    <p class="card-text text-muted">
+                        Visualize seus exames.
+                    </p>
+
+                    <a href="<?= route('auth.check') ?>" class="btn btn-primary">
+                        Em breve
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="mb-3 text-success fs-2">
+                        <i class="bi bi-journal-medical"></i>
+                    </div>
+
+                    <h5 class="card-title fw-bold">
+                        Prontuários
+                    </h5>
+
+                    <p class="card-text text-muted">
+                        Visualize todos os seus prontuários.
+                    </p>
+
+                    <a href="<?= route('medical_records.index') ?>" class="btn btn-outline-success">
+                        Ver Prontuários
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="mb-3 text-info fs-2">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+
+                    <h5 class="card-title fw-bold">
+                        Agendamentos
+                    </h5>
+
+                    <p class="card-text text-muted">
+                        Consulte os agendamentos vinculados a você.
+                    </p>
+
+                    <a href="<?= route('appointments.index') ?>" class="btn btn-outline-info">
+                        Ver Agendamentos
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

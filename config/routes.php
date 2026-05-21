@@ -23,18 +23,45 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('doctor')->group(function () {
         Route::get('/doctor', [DoctorsController::class, 'index'])->name('doctor.index');
+
+        Route::get('/medical_records/new', [MedicalRecordsController::class, 'new'])
+            ->name('medical_records.new');
+
+        Route::post('/medical_records', [MedicalRecordsController::class, 'create'])
+            ->name('medical_records.create');
+
+        Route::get('/medical_records/{id}/edit', [MedicalRecordsController::class, 'edit'])
+            ->name('medical_records.edit');
+
+        Route::put('/medical_records/{id}', [MedicalRecordsController::class, 'update'])
+            ->name('medical_records.update');
+
+        Route::delete('/medical_records/{id}', [MedicalRecordsController::class, 'destroy'])
+            ->name('medical_records.destroy');
     });
 
     Route::middleware('secretary')->group(function () {
         Route::get('/secretary', [SecretariesController::class, 'index'])->name('secretary.index');
+
+        Route::get('/appointments/new', [AppointmentsController::class, 'new'])
+            ->name('appointments.new');
+
+        Route::post('/appointments', [AppointmentsController::class, 'create'])
+            ->name('appointments.create');
+
+        Route::get('/appointments/{id}/edit', [AppointmentsController::class, 'edit'])
+            ->name('appointments.edit');
+
+        Route::put('/appointments/{id}', [AppointmentsController::class, 'update'])
+            ->name('appointments.update');
+
+        Route::delete('/appointments/{id}', [AppointmentsController::class, 'destroy'])
+            ->name('appointments.destroy');
     });
 
     Route::middleware('patient')->group(function () {
         Route::get('/patient', [PatientsController::class, 'index'])->name('patient.index');
     });
-
-    Route::get('/medical_records/new', [MedicalRecordsController::class, 'new'])
-        ->name('medical_records.new');
 
     Route::get('/medical_records', [MedicalRecordsController::class, 'index'])
         ->name('medical_records.index');
@@ -42,39 +69,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/medical_records/page/{page}', [MedicalRecordsController::class, 'paginate'])
         ->name('medical_records.paginate');
 
-    Route::post('/medical_records', [MedicalRecordsController::class, 'create'])
-        ->name('medical_records.create');
-
     Route::get('/medical_records/{id}', [MedicalRecordsController::class, 'show'])
         ->name('medical_records.show');
 
-    Route::get('/medical_records/{id}/edit', [MedicalRecordsController::class, 'edit'])
-        ->name('medical_records.edit');
-
-    Route::put('/medical_records/{id}', [MedicalRecordsController::class, 'update'])
-        ->name('medical_records.update');
-
-    Route::delete('/medical_records/{id}', [MedicalRecordsController::class, 'destroy'])
-        ->name('medical_records.destroy');
-
-    Route::get('/appointments/new', [AppointmentsController::class, 'new'])
-       ->name('appointments.new');
-
     Route::get('/appointments', [AppointmentsController::class, 'index'])
-    ->name('appointments.index');
-
-    Route::post('/appointments', [AppointmentsController::class, 'create'])
-    ->name('appointments.create');
+        ->name('appointments.index');
 
     Route::get('/appointments/{id}', [AppointmentsController::class, 'show'])
-    ->name('appointments.show');
-
-    Route::get('/appointments/{id}/edit', [AppointmentsController::class, 'edit'])
-    ->name('appointments.edit');
-
-    Route::put('/appointments/{id}', [AppointmentsController::class, 'update'])
-    ->name('appointments.update');
-
-    Route::delete('/appointments/{id}', [AppointmentsController::class, 'destroy'])
-    ->name('appointments.destroy');
+        ->name('appointments.show');
 });

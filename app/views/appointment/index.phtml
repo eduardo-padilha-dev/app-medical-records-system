@@ -2,6 +2,7 @@
 /** @var string $title */
 /** @var string $subtitle */
 /** @var array $appointments */
+$currentUser = $this->currentUser();
 ?>
 
 <div class="container py-4">
@@ -17,11 +18,12 @@
                 <?= $subtitle ?>
             </p>
         </div>
-
-        <a href="<?= route('appointments.new') ?>" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-1"></i>
-            Novo Agendamento
-        </a>
+        <?php if ($currentUser && $currentUser->isSecretary()): ?>
+            <a href="<?= route('appointments.new') ?>" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i>
+                Novo Agendamento
+            </a>
+        <?php endif; ?>
     </div>
 
     <div class="card border-0 shadow-sm">
@@ -39,10 +41,11 @@
                     <p class="text-muted">
                         Quando houver agendamentos cadastrados, eles aparecerão aqui.
                     </p>
-
-                    <a href="<?= route('appointments.new') ?>" class="btn btn-primary">
-                        Criar primeiro agendamento
-                    </a>
+                    <?php if ($currentUser && $currentUser->isSecretary()): ?>
+                        <a href="<?= route('appointments.new') ?>" class="btn btn-primary">
+                            Criar primeiro agendamento
+                        </a>
+                    <?php endif; ?>
                 </div>
 
             <?php else: ?>
@@ -110,22 +113,29 @@
                                         </span>
                                     </td>
 
-                                    <td class="text-end">
-                                        <a
-                                            href="<?= route('appointments.show', ['id' => $appointment->id]) ?>"
-                                            class="btn btn-sm btn-outline-primary"
-                                        >
-                                            <i class="bi bi-eye"></i>
-                                            Ver
-                                        </a>
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center gap-1">
+                                            <a href="<?= route('appointments.show', ['id' => $appointment->id]) ?>"
+                                                class="btn btn-sm btn-outline-secondary" title="Visualizar">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        
+                                            <?php if ($currentUser->isSecretary()): ?>
+                                                <a href="<?= route('appointments.edit', ['id' => $appointment->id]) ?>"
+                                                    class="btn btn-sm btn-outline-warning" title="Editar">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
 
-                                        <a
-                                            href="<?= route('appointments.edit', ['id' => $appointment->id]) ?>"
-                                            class="btn btn-sm btn-outline-secondary"
-                                        >
-                                            <i class="bi bi-pencil"></i>
-                                            Editar
-                                        </a>
+                                                <button type="button"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    title="Excluir"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#modalDelete"
+                                                    data-record-id="<?= $appointment->id ?>">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
                                 </tr>
 
@@ -140,10 +150,47 @@
     </div>
 
     <div class="mt-4">
-        <a href="<?= route('secretary.index') ?>" class="btn btn-outline-secondary">
+        <a href="<?= route('auth.check') ?>" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i>
             Voltar para o painel
         </a>
     </div>
 
 </div>
+
+<div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="modalDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-danger" id="modalDeleteLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Exclusão
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Tem certeza que deseja excluir o <strong>Agendamento #<span id="deleteRecordId"></span></strong>?
+                <br><span class="text-danger small">Esta ação não pode ser desfeita.</span>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteForm" method="POST" action="">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i>Excluir
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modalDelete = document.getElementById('modalDelete');
+    modalDelete.addEventListener('show.bs.modal', function(event) {
+        const btn = event.relatedTarget;
+        const recordId = btn.getAttribute('data-record-id');
+
+        document.getElementById('deleteRecordId').textContent = recordId;
+        document.getElementById('deleteForm').action = '/appointments/' + recordId;
+    });
+</script>

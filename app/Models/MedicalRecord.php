@@ -51,7 +51,7 @@ class MedicalRecord extends Model
     */
     public static function findByPatientId(int $patientId): array
     {
-        return self::where(['patient_id' => $patientId]);
+                return self::where(['patient_id' => $patientId, 'deleted_at' => null]);
     }
 
     /**
@@ -59,6 +59,12 @@ class MedicalRecord extends Model
     */
     public static function findByDoctorId(int $doctorId): array
     {
-        return self::where(['doctor_id' => $doctorId]);
+        return self::where(['doctor_id' => $doctorId, 'deleted_at' => null]);
+    }
+
+    public static function findActiveById(int $id): ?self
+    {
+        $records = self::where(['id' => $id, 'deleted_at' => null]);
+        return $records[0] ?? null;
     }
 }
