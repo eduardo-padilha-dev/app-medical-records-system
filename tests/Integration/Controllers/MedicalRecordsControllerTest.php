@@ -319,7 +319,7 @@ class MedicalRecordsControllerTest extends ControllerTestCase
         $this->assertStringContainsString('Novo Prontuário', $response);
         $this->assertCount(0, MedicalRecord::all());
         $this->assertNotNull($warningMessage);
-        $this->assertStringContainsString('Attempt to read property "id" on null', $warningMessage);
+        $this->assertStringContainsString('Attempt to read property "id" on null', (string) $warningMessage);
     }
 
     // --- edit ---
