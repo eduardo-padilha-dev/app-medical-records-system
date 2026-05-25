@@ -22,16 +22,13 @@ class MedicalRecordsController extends Controller
         $page = max(1, (int) $request->getParam('page'));
         $user = $this->currentUser();
 
-        if ($user->isAdmin()) {
-            $conditions = [];
-            $subtitle = 'Todos os Prontuários';
-        } elseif ($user->isDoctor()) {
+        if ($user->isDoctor()) {
             $doctor = Doctor::findByUserId($user->id);
-            $conditions = ['doctor_id' => $doctor ? $doctor->id : 0];
+            $conditions = ['doctor_id' => $doctor ? $doctor->id : 0, 'deleted_at' => null];
             $subtitle = 'Meus Prontuários';
         } elseif ($user->isPatient()) {
             $patient = Patient::findByUserId($user->id);
-            $conditions = ['patient_id' => $patient ? $patient->id : 0];
+            $conditions = ['patient_id' => $patient ? $patient->id : 0, 'deleted_at' => null];
             $subtitle = 'Meus Prontuários';
         } else {
             FlashMessage::danger('Você não tem permissão para acessar prontuários.');
@@ -75,13 +72,6 @@ class MedicalRecordsController extends Controller
 
     public function new(): void
     {
-        // Somente médicos podem criar prontuários
-        if (!$this->currentUser()->isDoctor()) {
-            FlashMessage::danger('Apenas médicos podem criar prontuários.');
-            $this->redirectTo(route('medical_records.index'));
-            return;
-        }
-
         $medicalRecord = new MedicalRecord();
         $patients      = Patient::all(); // lista de pacientes para o <select>
         $title         = 'Novo Prontuário';
@@ -91,12 +81,6 @@ class MedicalRecordsController extends Controller
 
     public function create(Request $request): void
     {
-        if (!$this->currentUser()->isDoctor()) {
-            FlashMessage::danger('Apenas médicos podem criar prontuários.');
-            $this->redirectTo(route('medical_records.index'));
-            return;
-        }
-
         $doctor = Doctor::findByUserId($this->currentUser()->id);
 
         $medicalRecord = new MedicalRecord([
@@ -191,7 +175,7 @@ class MedicalRecordsController extends Controller
             return;
         }
 
-        if ($medicalRecord->destroy()) {
+        if ($medicalRecord->softDelete()) {
             FlashMessage::success('Prontuário excluído com sucesso!');
         } else {
             FlashMessage::danger('Não foi possível excluir o prontuário.');
@@ -203,7 +187,7 @@ class MedicalRecordsController extends Controller
     private function findRecordOrRedirect(Request $request): ?MedicalRecord
     {
         $id     = (int) $request->getParam('id');
-        $record = MedicalRecord::findById($id);
+        $record = MedicalRecord::findActiveById($id);
 
         if (!$record) {
             FlashMessage::danger('Prontuário não encontrado.');
@@ -217,10 +201,6 @@ class MedicalRecordsController extends Controller
     private function canAccess(MedicalRecord $record): bool
     {
         $user = $this->currentUser();
-
-        if ($user->isAdmin()) {
-            return true;
-        }
 
         if ($user->isDoctor()) {
             $doctor = Doctor::findByUserId($user->id);
@@ -238,11 +218,6 @@ class MedicalRecordsController extends Controller
     private function canEdit(MedicalRecord $record): bool
     {
         $user = $this->currentUser();
-
-        if (!$user->isDoctor()) {
-            return false;
-        }
-
         $doctor = Doctor::findByUserId($user->id);
         return $doctor && (int)$record->doctor_id === $doctor->id;
     }

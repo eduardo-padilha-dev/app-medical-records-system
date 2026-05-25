@@ -1,6 +1,6 @@
 SET foreign_key_checks = 0;
 
-DROP TABLE IF EXISTS medical_records, appointments, admins, doctors, secretaries, patients, users;
+DROP TABLE IF EXISTS medical_records, appointments, admins, doctors, secretaries, patients, users, disease_medical_record;
 
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -80,6 +80,7 @@ CREATE TABLE medical_records (
     diagnosis       TEXT         NOT NULL,
     prescription    TEXT         NULL,
     notes           TEXT         NULL,
+    deleted_at      DATETIME     NULL,
     created_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
