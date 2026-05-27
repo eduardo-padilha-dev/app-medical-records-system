@@ -44,14 +44,6 @@ class AppointmentsController extends Controller
 
     public function new(): void
     {
-        $user = $this->currentUser();
-
-        if (!$user->isSecretary() && !$user->isAdmin()) {
-            FlashMessage::danger('Apenas secretárias ou admins podem criar agendamentos.');
-            $this->redirectTo(route('appointments.index'));
-            return;
-        }
-
         $appointment = new Appointment();
         $patients = Patient::all();
         $doctors = Doctor::all();
@@ -64,18 +56,8 @@ class AppointmentsController extends Controller
     {
         $user = $this->currentUser();
 
-        if (!$user->isSecretary() && !$user->isAdmin()) {
-            FlashMessage::danger('Você não tem permissão para criar agendamentos.');
-            $this->redirectTo(route('appointments.index'));
-            return;
-        }
-
-        $secretaryId = null;
-
-        if ($user->isSecretary()) {
-            $secretary = Secretary::findByUserId($user->id);
-            $secretaryId = $secretary ? $secretary->id : null;
-        }
+        $secretary = Secretary::findByUserId($user->id);
+        $secretaryId = $secretary ? $secretary->id : null;
 
         $appointment = new Appointment([
             'patient_id' => $request->getParam('patient_id'),
@@ -249,10 +231,6 @@ class AppointmentsController extends Controller
     private function canEdit(Appointment $appointment): bool
     {
         $user = $this->currentUser();
-
-        if ($user->isAdmin()) {
-            return true;
-        }
 
         if ($user->isSecretary()) {
             $secretary = Secretary::findByUserId($user->id);

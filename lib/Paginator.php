@@ -150,9 +150,14 @@ class Paginator
             return '';
         }
 
-        $sqlConditions = array_map(function ($column) {
-            return "{$column} = :{$column}";
-        }, array_keys($this->conditions));
+        $sqlConditions = [];
+        foreach ($this->conditions as $column => $value) {
+            if ($value === null) {
+                $sqlConditions[] = "{$column} IS NULL";
+            } else {
+                $sqlConditions[] = "{$column} = :{$column}";
+            }
+        }
 
         return ' WHERE ' . implode(' AND ', $sqlConditions);
     }
@@ -164,7 +169,9 @@ class Paginator
         }
 
         foreach ($this->conditions as $column => $value) {
-            $stmt->bindValue($column, $value);
+            if ($value !== null) {
+                $stmt->bindValue($column, $value);
+            };
         }
     }
 }

@@ -4,6 +4,7 @@
 /** @var App\Models\Patient|null $patient */
 /** @var App\Models\Doctor|null $doctor */
 
+$currentUser    = $this->currentUser();
 $patientUser = $patient ? $patient->user() : null;
 $doctorUser = $doctor ? $doctor->user() : null;
 ?>
@@ -162,13 +163,15 @@ $doctorUser = $doctor ? $doctor->user() : null;
                     Voltar
                 </a>
 
-                <a
-                    href="<?= route('medical_records.edit', ['id' => $medicalRecord->id]) ?>"
-                    class="btn btn-primary"
-                >
-                    <i class="bi bi-pencil me-1"></i>
-                    Editar Prontuário
-                </a>
+                <?php if ($currentUser->isDoctor()): ?>
+                    <a
+                        href="<?= route('medical_records.edit', ['id' => $medicalRecord->id]) ?>"
+                        class="btn btn-primary"
+                    >
+                        <i class="bi bi-pencil me-1"></i>
+                        Editar Prontuário
+                    </a>
+                <?php endif; ?>
 
             </div>
 
