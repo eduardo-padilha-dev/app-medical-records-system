@@ -23,6 +23,7 @@ class Appointment extends Model
         'secretary_id',
         'scheduled_at',
         'status',
+        'observation',
     ];
 
     public function validates(): void
@@ -31,7 +32,8 @@ class Appointment extends Model
         Validations::notEmpty('doctor_id', $this, 'Médico não pode ser vazio!');
         Validations::notEmpty('scheduled_at', $this, 'Data e hora não podem ser vazias!');
         Validations::notEmpty('status', $this, 'Status não pode ser vazio!');
-    }
+         Validations::dateConfirmation('scheduled_at', $this);
+        }
 
     public function patient(): ?Patient
     {
@@ -72,4 +74,6 @@ class Appointment extends Model
     {
         return self::where(['secretary_id' => $secretaryId]);
     }
+
+
 }

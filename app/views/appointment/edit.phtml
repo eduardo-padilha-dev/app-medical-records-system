@@ -117,6 +117,19 @@
                         <?php endif; ?>
                     </div>
 
+
+                    <div class="col-12">
+                      <label class="form-label fw-semibold">
+                          Observação
+                      </label>
+
+                      <textarea
+                          name="observation"
+                          class="form-control"
+                          rows="3"
+                          placeholder="Digite uma observação sobre o agendamento"
+                      ><?= htmlspecialchars($appointment->observation ?? '') ?></textarea>
+                  </div>
                 </div>
 
                 <hr class="my-4">

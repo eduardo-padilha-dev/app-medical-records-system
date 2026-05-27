@@ -63,6 +63,7 @@ CREATE TABLE appointments (
     secretary_id INT NOT NULL,
     scheduled_at DATETIME NOT NULL,
     status ENUM('scheduled', 'confirmed', 'completed', 'canceled') NOT NULL DEFAULT 'scheduled',
+    observation TEXT NULL,
     created_at     DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at     DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
