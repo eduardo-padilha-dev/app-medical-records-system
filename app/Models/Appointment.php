@@ -12,6 +12,7 @@ use Lib\Validations;
  * @property int $secretary_id
  * @property string $scheduled_at
  * @property string $status
+ * @property string|null $observation
  */
 class Appointment extends Model
 {
@@ -32,8 +33,8 @@ class Appointment extends Model
         Validations::notEmpty('doctor_id', $this, 'Médico não pode ser vazio!');
         Validations::notEmpty('scheduled_at', $this, 'Data e hora não podem ser vazias!');
         Validations::notEmpty('status', $this, 'Status não pode ser vazio!');
-         Validations::dateConfirmation('scheduled_at', $this);
-        }
+        Validations::dateConfirmation('scheduled_at', $this);
+    }
 
     public function patient(): ?Patient
     {
@@ -74,6 +75,4 @@ class Appointment extends Model
     {
         return self::where(['secretary_id' => $secretaryId]);
     }
-
-
 }
