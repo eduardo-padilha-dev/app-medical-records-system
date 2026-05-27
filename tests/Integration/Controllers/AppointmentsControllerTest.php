@@ -8,6 +8,7 @@ use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Secretary;
 use App\Models\User;
+use DateTime;
 
 class AppointmentsControllerTest extends ControllerTestCase
 {
@@ -92,17 +93,20 @@ class AppointmentsControllerTest extends ControllerTestCase
     }
 
     private function createAppointment(): Appointment
-    {
-        $appointment = new Appointment([
-            'patient_id'   => $this->patient->id,
-            'doctor_id'    => $this->doctor->id,
-            'secretary_id' => $this->secretary->id,
-            'scheduled_at' => '2026-06-01 10:00:00',
-            'status'       => 'scheduled',
-        ]);
-        $appointment->save();
-        return $appointment;
-    }
+{
+    $appointment = new Appointment([
+        'patient_id' => $this->patient->id,
+        'doctor_id' => $this->doctor->id,
+        'secretary_id' => $this->secretary->id,
+        'scheduled_at' => (new DateTime('+1 day'))->format('Y-m-d\TH:i'),
+        'status' => 'scheduled',
+        'observation' => 'Observação de teste',
+    ]);
+
+    $appointment->save();
+
+    return $appointment;
+}
 
     // --- index ---
 

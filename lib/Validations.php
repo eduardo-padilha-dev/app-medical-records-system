@@ -28,29 +28,30 @@ class Validations
     }
 
     public static function dateConfirmation(string $attribute, Model $obj): bool
-    {
-        $value = $obj->$attribute;
+{
+    $value = $obj->$attribute;
 
-        if (empty($value)) {
-            return true;
-        }
-
-        $inputDate = \DateTime::createFromFormat('Y-m-d\TH:i', $value);
-
-        if (!$inputDate) {
-            $obj->addError($attribute, 'Data e hora inválidas!');
-            return false;
-        }
-
-        $now = new \DateTime();
-
-        if ($inputDate < $now) {
-            $obj->addError($attribute, 'Não é possível agendar para uma data/hora no passado!');
-            return false;
-        }
-
+    if (empty($value)) {
         return true;
     }
+
+    $inputDate = \DateTime::createFromFormat('Y-m-d\TH:i', $value)
+        ?: \DateTime::createFromFormat('Y-m-d H:i:s', $value);
+
+    if (!$inputDate) {
+        $obj->addError($attribute, 'Data e hora inválidas!');
+        return false;
+    }
+
+    $now = new \DateTime();
+
+    if ($inputDate < $now) {
+        $obj->addError($attribute, 'Não é possível agendar para uma data/hora no passado!');
+        return false;
+    }
+
+    return true;
+}
 
     public static function uniqueness(string|array $fields, Model $object): bool
     {
