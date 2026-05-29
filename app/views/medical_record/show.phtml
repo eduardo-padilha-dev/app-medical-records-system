@@ -4,9 +4,9 @@
 /** @var App\Models\Patient|null $patient */
 /** @var App\Models\Doctor|null $doctor */
 
-$currentUser    = $this->currentUser();
-$patientUser = $patient ? $patient->user() : null;
-$doctorUser = $doctor ? $doctor->user() : null;
+$currentUser = $this->currentUser();
+$patientUser = $patient ? $patient->user()->get() : null;
+$doctorUser = $doctor ? $doctor->user()->get() : null;
 ?>
 
 <div class="container py-4">

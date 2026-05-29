@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Core\Database\ActiveRecord\BelongsTo;
+use Core\Database\ActiveRecord\HasMany;
 use Core\Database\ActiveRecord\Model;
 use Lib\Validations;
 
@@ -29,8 +31,34 @@ class Patient extends Model
         return self::findBy(['user_id' => $userId]);
     }
 
-    public function user(): ?User
+    public function user(): BelongsTo
     {
-        return User::findById((int) $this->user_id);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function medicalRecords(): HasMany
+    {
+        return $this->hasMany(MedicalRecord::class, 'patient_id');
+    }
+
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class, 'patient_id');
+    }
+
+    /**
+     * @return array<int, array{patient: Patient, user: ?object}>
+     */
+    public static function allWithUser(): array
+    {
+        $items = [];
+        foreach (self::all() as $patient) {
+            $items[] = [
+                'patient' => $patient,
+                'user' => $patient->user()->get(),
+            ];
+        }
+
+        return $items;
     }
 }

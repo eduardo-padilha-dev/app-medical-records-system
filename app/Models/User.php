@@ -7,6 +7,7 @@ use Core\Database\ActiveRecord\Model;
 use App\Models\Doctor;
 use App\Models\Secretary;
 use App\Models\Patient;
+use Core\Database\ActiveRecord\HasMany;
 
 /**
  * @property int $id
@@ -60,6 +61,26 @@ class User extends Model
         ) {
             $this->encrypted_password = password_hash($value, PASSWORD_DEFAULT);
         }
+    }
+
+    public function admins(): HasMany
+    {
+        return $this->hasMany(Admin::class, 'user_id');
+    }
+
+    public function patients(): HasMany
+    {
+        return $this->hasMany(Patient::class, 'user_id');
+    }
+
+    public function secretaries(): HasMany
+    {
+        return $this->hasMany(Secretary::class, 'user_id');
+    }
+
+    public function doctors(): HasMany
+    {
+        return $this->hasMany(Doctor::class, 'user_id');
     }
 
     public function admin(): ?Admin

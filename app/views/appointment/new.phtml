@@ -34,7 +34,7 @@
                             <option value="">Selecione um paciente</option>
 
                             <?php foreach ($patients as $patient): ?>
-                                <?php $user = $patient->user(); ?>
+                                <?php $user = $patient->user()->get(); ?>
 
                                 <option value="<?= $patient->id ?>">
                                     <?= $user ? $user->name : 'Paciente sem usuário' ?>
@@ -56,7 +56,7 @@
                             <option value="">Selecione um médico</option>
 
                             <?php foreach ($doctors as $doctor): ?>
-                                <?php $user = $doctor->user(); ?>
+                                <?php $user = $doctor->user()->get(); ?>
 
                                 <option value="<?= $doctor->id ?>">
                                     <?= $user ? $user->name : 'Médico sem usuário' ?>
