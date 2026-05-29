@@ -1,7 +1,7 @@
 <?php
 /** @var string $title */
 /** @var App\Models\MedicalRecord $medicalRecord */
-/** @var array $patients */
+/** @var array<int, array{patient: App\Models\Patient, user: App\Models\User|null}> $patientsWithUser */
 ?>
 
 <div class="container py-4">
@@ -31,8 +31,11 @@
                         </label>
 
                         <select name="patient_id" class="form-select <?= $medicalRecord->errors('patient_id') ? 'is-invalid' : '' ?>">
-                            <?php foreach ($patients as $patient): ?>
-                                <?php $patientUser = $patient->user(); ?>
+                            <?php foreach ($patientsWithUser as $item): ?>
+                                <?php
+                                $patient = $item['patient'];
+                                $patientUser = $item['user'] ?? null;
+                                ?>
 
                                 <option
                                     value="<?= $patient->id ?>"

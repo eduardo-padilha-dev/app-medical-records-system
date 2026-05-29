@@ -5,9 +5,9 @@
 /** @var App\Models\Doctor|null $doctor */
 /** @var App\Models\Secretary|null $secretary */
 $currentUser = $this->currentUser();
-$patientUser = $patient ? $patient->user() : null;
-$doctorUser = $doctor ? $doctor->user() : null;
-$secretaryUser = $secretary ? $secretary->user() : null;
+$patientUser = $patient ? $patient->user()->get() : null;
+$doctorUser = $doctor ? $doctor->user()->get() : null;
+$secretaryUser = $secretary ? $secretary->user()->get() : null;
 
 $statusClass = 'secondary';
 $statusText = $appointment->status;

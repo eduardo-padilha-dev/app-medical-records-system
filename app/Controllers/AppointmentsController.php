@@ -97,9 +97,9 @@ class AppointmentsController extends Controller
         }
 
         $title = 'Agendamento #' . $appointment->id;
-        $patient = $appointment->patient();
-        $doctor = $appointment->doctor();
-        $secretary = $appointment->secretary();
+        $patient = $appointment->patient()->get();
+        $doctor = $appointment->doctor()->get();
+        $secretary = $appointment->secretary()->get();
 
         $this->render('appointment/show', compact('title', 'appointment', 'patient', 'doctor', 'secretary'));
     }

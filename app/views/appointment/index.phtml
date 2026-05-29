@@ -66,11 +66,11 @@ $currentUser = $this->currentUser();
                         <tbody>
                             <?php foreach ($appointments as $appointment): ?>
                                 <?php
-                                    $patient = $appointment->patient();
-                                    $doctor = $appointment->doctor();
+                                    $patient = $appointment->patient()->get();
+                                    $doctor = $appointment->doctor()->get();
 
-                                    $patientUser = $patient ? $patient->user() : null;
-                                    $doctorUser = $doctor ? $doctor->user() : null;
+                                    $patientUser = $patient ? $patient->user()->get() : null;
+                                    $doctorUser = $doctor ? $doctor->user()->get() : null;
 
                                     $statusClass = 'secondary';
                                     $statusText = $appointment->status;

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Core\Database\ActiveRecord\BelongsTo;
 use Core\Database\ActiveRecord\Model;
 use Lib\Validations;
 
@@ -36,14 +37,14 @@ class MedicalRecord extends Model
         Validations::notEmpty('diagnosis', $this, 'Diagnóstico não pode ser vazio!');
     }
 
-    public function patient(): ?Patient
+    public function patient(): BelongsTo
     {
-        return Patient::findById((int) $this->patient_id);
+        return $this->belongsTo(Patient::class, 'patient_id');
     }
 
-    public function doctor(): ?Doctor
+    public function doctor(): BelongsTo
     {
-        return Doctor::findById((int) $this->doctor_id);
+        return $this->belongsTo(Doctor::class, 'doctor_id');
     }
 
     /**
@@ -66,5 +67,30 @@ class MedicalRecord extends Model
     {
         $records = self::where(['id' => $id, 'deleted_at' => null]);
         return $records[0] ?? null;
+    }
+
+    /**
+     * @param array<int, MedicalRecord> $records
+     * @return array<int, array<string, mixed>>
+     */
+    public static function withUsers(array $records): array
+    {
+        $items = [];
+        foreach ($records as $record) {
+            /** @var ?Patient $patient */
+            $patient = $record->patient()->get();
+            /** @var ?Doctor $doctor */
+            $doctor = $record->doctor()->get();
+
+            $items[] = [
+                'record' => $record,
+                'patient' => $patient,
+                'doctor' => $doctor,
+                'patientUser' => $patient ? $patient->user()->get() : null,
+                'doctorUser' => $doctor ? $doctor->user()->get() : null,
+            ];
+        }
+
+        return $items;
     }
 }
