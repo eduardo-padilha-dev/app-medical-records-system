@@ -27,6 +27,19 @@ class Validations
         return true;
     }
 
+    public static function dateConfirmation(string $attribute, Model $obj): bool
+    {
+        $inputDate = \DateTime::createFromFormat('Y-m-d\TH:i', $obj->$attribute);
+        $now = new \DateTime();
+
+        if ($inputDate < $now) {
+            $obj->addError($attribute, 'Não é possível agendar para uma data no passado!');
+            return false;
+        }
+
+        return true;
+    }
+
     public static function uniqueness(string|array $fields, Model $object): bool
     {
         $dbFieldsValues = [];
