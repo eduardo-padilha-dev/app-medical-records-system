@@ -65,6 +65,7 @@ class AppointmentsController extends Controller
             'secretary_id' => $secretaryId,
             'scheduled_at' => $request->getParam('scheduled_at'),
             'status' => $request->getParam('status') ?: 'scheduled',
+            'observation' => $request->getParam('observation') ?: null,
         ]);
 
         if ($appointment->save()) {
@@ -144,6 +145,7 @@ class AppointmentsController extends Controller
             'doctor_id' => $request->getParam('doctor_id'),
             'scheduled_at' => $request->getParam('scheduled_at'),
             'status' => $request->getParam('status'),
+            'observation' => $request->getParam('observation') ?: null,
         ];
 
         foreach ($data as $key => $value) {

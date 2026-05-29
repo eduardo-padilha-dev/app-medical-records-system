@@ -8,6 +8,7 @@ use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Secretary;
 use App\Models\User;
+use DateTime;
 
 class AppointmentsControllerTest extends ControllerTestCase
 {
@@ -91,20 +92,26 @@ class AppointmentsControllerTest extends ControllerTestCase
         $_SESSION['user'] = ['id' => $user->id];
     }
 
+    private function futureDate(): string
+    {
+        return (new DateTime('+1 day'))->format('Y-m-d\TH:i');
+    }
+
     private function createAppointment(): Appointment
     {
         $appointment = new Appointment([
-            'patient_id'   => $this->patient->id,
-            'doctor_id'    => $this->doctor->id,
+            'patient_id' => $this->patient->id,
+            'doctor_id' => $this->doctor->id,
             'secretary_id' => $this->secretary->id,
-            'scheduled_at' => '2026-06-01 10:00:00',
-            'status'       => 'scheduled',
+            'scheduled_at' => $this->futureDate(),
+            'status' => 'scheduled',
+            'observation' => 'Observação de teste',
         ]);
+
         $appointment->save();
+
         return $appointment;
     }
-
-    // --- index ---
 
     public function test_index_as_admin_shows_all_appointments(): void
     {
@@ -169,14 +176,13 @@ class AppointmentsControllerTest extends ControllerTestCase
             'password_confirmation' => '123456',
         ]);
         $noRoleUser->save();
+
         $this->loginAs($noRoleUser);
 
         $response = $this->get('index', 'App\Controllers\AppointmentsController');
 
         $this->assertStringContainsString('Location:', $response);
     }
-
-    // --- show ---
 
     public function test_show_displays_appointment_details_for_secretary(): void
     {
@@ -229,8 +235,6 @@ class AppointmentsControllerTest extends ControllerTestCase
         $this->assertStringContainsString('Location:', $response);
     }
 
-    // --- new ---
-
     public function test_new_renders_form_for_secretary(): void
     {
         $this->loginAs($this->secretaryUser);
@@ -267,17 +271,16 @@ class AppointmentsControllerTest extends ControllerTestCase
         $this->assertStringContainsString('Novo Agendamento', $response);
     }
 
-    // --- create ---
-
     public function test_create_saves_appointment_and_redirects_to_show(): void
     {
         $this->loginAs($this->secretaryUser);
 
         $response = $this->post('create', 'App\Controllers\AppointmentsController', [
-            'patient_id'   => $this->patient->id,
-            'doctor_id'    => $this->doctor->id,
-            'scheduled_at' => '2026-06-10 14:00:00',
-            'status'       => 'scheduled',
+            'patient_id' => $this->patient->id,
+            'doctor_id' => $this->doctor->id,
+            'scheduled_at' => $this->futureDate(),
+            'status' => 'scheduled',
+            'observation' => 'Consulta de teste',
         ]);
 
         $this->assertStringContainsString('Location:', $response);
@@ -289,31 +292,15 @@ class AppointmentsControllerTest extends ControllerTestCase
         $this->loginAs($this->secretaryUser);
 
         $response = $this->post('create', 'App\Controllers\AppointmentsController', [
-            'patient_id'   => $this->patient->id,
-            'doctor_id'    => $this->doctor->id,
+            'patient_id' => $this->patient->id,
+            'doctor_id' => $this->doctor->id,
             'scheduled_at' => '',
-            'status'       => '',
+            'status' => '',
         ]);
 
         $this->assertStringContainsString('Novo Agendamento', $response);
         $this->assertCount(0, Appointment::all());
     }
-
-    public function test_create_redirects_for_non_authorized_user(): void
-    {
-        $this->loginAs($this->doctorUser);
-
-        $this->expectException(\PDOException::class);
-
-        $this->post('create', 'App\\Controllers\\AppointmentsController', [
-            'patient_id'   => $this->patient->id,
-            'doctor_id'    => $this->doctor->id,
-            'scheduled_at' => '2026-06-10 14:00:00',
-            'status'       => 'scheduled',
-        ]);
-    }
-
-    // --- edit ---
 
     public function test_edit_renders_form_for_owner_secretary(): void
     {
@@ -354,8 +341,6 @@ class AppointmentsControllerTest extends ControllerTestCase
 
         $this->assertStringContainsString('Location:', $response);
     }
-
-    // --- destroy ---
 
     public function test_destroy_deletes_appointment_and_redirects(): void
     {

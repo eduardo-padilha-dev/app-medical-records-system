@@ -87,6 +87,16 @@ if ($appointment->status === 'scheduled') {
                     </div>
                 </div>
 
+                <div class="col-12">
+                <div class="p-3 border rounded bg-light h-100">
+                    <small class="text-muted d-block mb-1">Observação</small>
+
+                    <strong>
+                        <?= nl2br(htmlspecialchars($appointment->observation ?: 'Nenhuma observação informada.')) ?>
+                    </strong>
+                </div>
+            </div>
+
             </div>
 
             <hr class="my-4">
