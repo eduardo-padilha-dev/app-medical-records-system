@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @var App\Models\MedicalRecord[] $medicalRecords
- * @var \Lib\Paginator|null        $paginator
- * @var string                     $subtitle
+ * @var array<int, array<string, mixed>> $recordsWithUsers
+ * @var \Lib\Paginator|null             $paginator
+ * @var string                          $subtitle
  */
 
 $currentUser    = $this->currentUser();
-$medicalRecords = isset($paginator) ? $paginator->registers() : ($medicalRecords ?? []);
+$recordsWithUsers = $recordsWithUsers ?? [];
 ?>
 
 <div class="container py-4">
@@ -27,7 +27,7 @@ $medicalRecords = isset($paginator) ? $paginator->registers() : ($medicalRecords
         <?php endif; ?>
     </div>
 
-    <?php if (empty($medicalRecords)): ?>
+    <?php if (empty($recordsWithUsers)): ?>
         <div class="card border-0 shadow-sm text-center py-5">
             <div class="card-body">
                 <i class="bi bi-folder2-open display-3 text-muted mb-3 d-block"></i>
@@ -57,12 +57,11 @@ $medicalRecords = isset($paginator) ? $paginator->registers() : ($medicalRecords
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($medicalRecords as $record): ?>
+                            <?php foreach ($recordsWithUsers as $item): ?>
                                 <?php
-                                $patient = $record->patient();
-                                $doctor  = $record->doctor();
-                                $patientUser = $patient ? $patient->user() : null;
-                                $doctorUser = $doctor ? $doctor->user() : null;
+                                $record = $item['record'];
+                                $patientUser = $item['patientUser'] ?? null;
+                                $doctorUser = $item['doctorUser'] ?? null;
                                 ?>
                                 <tr>
                                     <td class="ps-4 text-muted"><?= $record->id ?></td>

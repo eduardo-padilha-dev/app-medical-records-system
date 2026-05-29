@@ -23,11 +23,11 @@ class MedicalRecordsController extends Controller
         $user = $this->currentUser();
 
         if ($user->isDoctor()) {
-            $doctor = Doctor::findByUserId($user->id);
+            $doctor = $user->doctor();
             $conditions = ['doctor_id' => $doctor ? $doctor->id : 0, 'deleted_at' => null];
             $subtitle = 'Meus Prontuários';
         } elseif ($user->isPatient()) {
-            $patient = Patient::findByUserId($user->id);
+            $patient = $user->patient();
             $conditions = ['patient_id' => $patient ? $patient->id : 0, 'deleted_at' => null];
             $subtitle = 'Meus Prontuários';
         } else {
@@ -45,8 +45,10 @@ class MedicalRecordsController extends Controller
             $conditions
         );
 
+        $recordsWithUsers = MedicalRecord::withUsers($paginator->registers());
+
         $title = 'Prontuários Médicos';
-        $this->render('medical_record/index', compact('title', 'subtitle', 'paginator'));
+        $this->render('medical_record/index', compact('title', 'subtitle', 'paginator', 'recordsWithUsers'));
     }
 
     public function show(Request $request): void
@@ -56,7 +58,7 @@ class MedicalRecordsController extends Controller
             return;
         }
 
-        // Segurança: verifica se o usuário tem permissão para ver este registro
+
         if (!$this->canAccess($medicalRecord)) {
             FlashMessage::danger('Acesso negado a este prontuário.');
             $this->redirectTo(route('medical_records.index'));
@@ -64,8 +66,8 @@ class MedicalRecordsController extends Controller
         }
 
         $title  = 'Prontuário #' . $medicalRecord->id;
-        $patient = $medicalRecord->patient();
-        $doctor  = $medicalRecord->doctor();
+        $patient = $medicalRecord->patient()->get();
+        $doctor  = $medicalRecord->doctor()->get();
 
         $this->render('medical_record/show', compact('title', 'medicalRecord', 'patient', 'doctor'));
     }
@@ -73,15 +75,15 @@ class MedicalRecordsController extends Controller
     public function new(): void
     {
         $medicalRecord = new MedicalRecord();
-        $patients      = Patient::all(); // lista de pacientes para o <select>
+        $patientsWithUser = Patient::allWithUser();
         $title         = 'Novo Prontuário';
 
-        $this->render('medical_record/new', compact('title', 'medicalRecord', 'patients'));
+        $this->render('medical_record/new', compact('title', 'medicalRecord', 'patientsWithUser'));
     }
 
     public function create(Request $request): void
     {
-        $doctor = Doctor::findByUserId($this->currentUser()->id);
+        $doctor = $this->currentUser()->doctor();
 
         $medicalRecord = new MedicalRecord([
             'patient_id'    => $request->getParam('patient_id'),
@@ -99,9 +101,9 @@ class MedicalRecordsController extends Controller
         } else {
             // Validação falhou — reexibe o formulário com os erros
             FlashMessage::danger('Erro ao criar prontuário. Verifique os campos.');
-            $patients = Patient::all();
-            $title    = 'Novo Prontuário';
-            $this->render('medical_record/new', compact('title', 'medicalRecord', 'patients'));
+            $patientsWithUser = Patient::allWithUser();
+            $title = 'Novo Prontuário';
+            $this->render('medical_record/new', compact('title', 'medicalRecord', 'patientsWithUser'));
         }
     }
 
@@ -118,10 +120,10 @@ class MedicalRecordsController extends Controller
             return;
         }
 
-        $patients = Patient::all();
-        $title    = 'Editar Prontuário #' . $medicalRecord->id;
+        $patientsWithUser = Patient::allWithUser();
+        $title = 'Editar Prontuário #' . $medicalRecord->id;
 
-        $this->render('medical_record/edit', compact('title', 'medicalRecord', 'patients'));
+        $this->render('medical_record/edit', compact('title', 'medicalRecord', 'patientsWithUser'));
     }
 
     public function update(Request $request): void
@@ -151,9 +153,9 @@ class MedicalRecordsController extends Controller
         }
 
         if (!$medicalRecord->isValid()) {
-            $patients = Patient::all();
-            $title    = 'Editar Prontuário #' . $medicalRecord->id;
-            $this->render('medical_record/edit', compact('title', 'medicalRecord', 'patients'));
+            $patientsWithUser = Patient::allWithUser();
+            $title = 'Editar Prontuário #' . $medicalRecord->id;
+            $this->render('medical_record/edit', compact('title', 'medicalRecord', 'patientsWithUser'));
             return;
         }
 
@@ -203,12 +205,12 @@ class MedicalRecordsController extends Controller
         $user = $this->currentUser();
 
         if ($user->isDoctor()) {
-            $doctor = Doctor::findByUserId($user->id);
+            $doctor = $user->doctor();
             return $doctor && (int)$record->doctor_id === (int)$doctor->id;
         }
 
         if ($user->isPatient()) {
-            $patient = Patient::findByUserId($user->id);
+            $patient = $user->patient();
             return $patient && (int)$record->patient_id === (int)$patient->id;
         }
 
@@ -218,7 +220,7 @@ class MedicalRecordsController extends Controller
     private function canEdit(MedicalRecord $record): bool
     {
         $user = $this->currentUser();
-        $doctor = Doctor::findByUserId($user->id);
+        $doctor = $user->doctor();
         return $doctor && (int)$record->doctor_id === $doctor->id;
     }
 }

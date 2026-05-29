@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Core\Database\ActiveRecord\BelongsTo;
 use Core\Database\ActiveRecord\Model;
 use Lib\Validations;
 
@@ -33,19 +34,19 @@ class Appointment extends Model
         Validations::notEmpty('status', $this, 'Status não pode ser vazio!');
     }
 
-    public function patient(): ?Patient
+    public function patient(): BelongsTo
     {
-        return Patient::findById((int) $this->patient_id);
+        return $this->belongsTo(Patient::class, 'patient_id');
     }
 
-    public function doctor(): ?Doctor
+    public function doctor(): BelongsTo
     {
-        return Doctor::findById((int) $this->doctor_id);
+        return $this->belongsTo(Doctor::class, 'doctor_id');
     }
 
-    public function secretary(): ?Secretary
+    public function secretary(): BelongsTo
     {
-        return Secretary::findById((int) $this->secretary_id);
+        return $this->belongsTo(Secretary::class, 'secretary_id');
     }
 
     /**
@@ -71,5 +72,34 @@ class Appointment extends Model
     public static function findBySecretaryId(int $secretaryId): array
     {
         return self::where(['secretary_id' => $secretaryId]);
+    }
+
+    /**
+     * @param array<int, Appointment> $appointments
+     * @return array<int, array<string, mixed>>
+     */
+    public static function withUsers(array $appointments): array
+    {
+        $items = [];
+        foreach ($appointments as $appointment) {
+            /** @var ?Patient $patient */
+            $patient = $appointment->patient()->get();
+            /** @var ?Doctor $doctor */
+            $doctor = $appointment->doctor()->get();
+            /** @var ?Secretary $secretary */
+            $secretary = $appointment->secretary()->get();
+
+            $items[] = [
+                'appointment' => $appointment,
+                'patient' => $patient,
+                'doctor' => $doctor,
+                'secretary' => $secretary,
+                'patientUser' => $patient ? $patient->user()->get() : null,
+                'doctorUser' => $doctor ? $doctor->user()->get() : null,
+                'secretaryUser' => $secretary ? $secretary->user()->get() : null,
+            ];
+        }
+
+        return $items;
     }
 }

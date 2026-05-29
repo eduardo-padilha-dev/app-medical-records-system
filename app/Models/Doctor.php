@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Core\Database\ActiveRecord\BelongsTo;
+use Core\Database\ActiveRecord\HasMany;
 use Core\Database\ActiveRecord\Model;
 use Lib\Validations;
 
@@ -30,8 +32,18 @@ class Doctor extends Model
         return self::findBy(['user_id' => $userId]);
     }
 
-    public function user(): ?User
+    public function user(): BelongsTo
     {
-        return User::findById((int) $this->user_id);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function medicalRecords(): HasMany
+    {
+        return $this->hasMany(MedicalRecord::class, 'doctor_id');
+    }
+
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class, 'doctor_id');
     }
 }
