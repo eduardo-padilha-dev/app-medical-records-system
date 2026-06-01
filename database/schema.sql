@@ -1,6 +1,6 @@
 SET foreign_key_checks = 0;
 
-DROP TABLE IF EXISTS medical_records, appointments, admins, doctors, secretaries, patients, users, disease_medical_record;
+DROP TABLE IF EXISTS medical_records, appointments, admins, doctors, secretaries, patients, users, disease_medical_record, exams, exam_types;
 
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -91,6 +91,39 @@ CREATE TABLE medical_records (
         FOREIGN KEY (doctor_id)      REFERENCES doctors(id)       ON DELETE CASCADE,
     CONSTRAINT fk_medical_records_appointment
         FOREIGN KEY (appointment_id) REFERENCES appointments(id)  ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE exam_types (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT NULL,
+    ai_prompt_template TEXT NOT NULL,
+    expected_json_schema JSON NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE exams (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT NOT NULL,
+    appointment_id INT NULL,
+    upload_by INT NOT NULL, 
+    exam_type_id INT NOT NULL,
+    exam_date DATE NOT NULL,
+    is_verified BOOLEAN DEFAULT FALSE,
+    is_verified_by INT NULL, 
+    source ENUM('upload', 'whatsapp') NOT NULL DEFAULT 'upload',
+    file_path VARCHAR(255) NOT NULL,
+    ai_status ENUM('pending', 'processing', 'completed', 'failed') NOT NULL DEFAULT 'pending',
+    extracted_data_json JSON NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_exams_patient FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE,
+    CONSTRAINT fk_exams_appointment FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE SET NULL,
+    CONSTRAINT fk_exams_exam_type FOREIGN KEY (exam_type_id) REFERENCES exam_types(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_exams_upload_by FOREIGN KEY (upload_by) REFERENCES users(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_exams_verified_by FOREIGN KEY (is_verified_by) REFERENCES doctors(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 SET foreign_key_checks = 1;
