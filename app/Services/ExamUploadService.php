@@ -8,9 +8,11 @@ use RuntimeException;
 
 class ExamUploadService
 {
-    private array $file;
+    /** @var array{tmp_name?: string, error?: int, size?: int, type?: string, name?: string} */
+    private array $file = [];
     private string $generatedFileName = '';
 
+    /** @var array{extension: string, max_size: int} */
     private array $rules = [
         'extension' => 'pdf',
         'max_size'  => 5 * 1024 * 1024 // 5MB
@@ -103,7 +105,7 @@ class ExamUploadService
 
         $fileNameSplitted  = explode('.', $this->file['name'] ?? '');
         $fileExtension = strtolower(end($fileNameSplitted));
-        
+
         if ($fileExtension !== $this->rules['extension']) {
             $this->exam->addError('file', 'Formato inválido. Apenas PDFs são aceitos.');
         }

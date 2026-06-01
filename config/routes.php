@@ -93,5 +93,4 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/exams/{id}', [ExamsController::class, 'show'])
         ->name('exams.show');
-
 });
