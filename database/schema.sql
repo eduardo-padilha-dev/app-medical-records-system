@@ -110,7 +110,7 @@ CREATE TABLE exams (
     upload_by INT NOT NULL, 
     exam_type_id INT NOT NULL,
     exam_date DATE NOT NULL,
-    is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    is_verified BOOLEAN DEFAULT FALSE,
     is_verified_by INT NULL, 
     source ENUM('upload', 'whatsapp') NOT NULL DEFAULT 'upload',
     file_path VARCHAR(255) NOT NULL,

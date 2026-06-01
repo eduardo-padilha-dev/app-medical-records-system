@@ -1,0 +1,148 @@
+<?php
+/** @var string $title */
+/** @var string $subtitle */
+/** @var array<int, App\Models\Exam> $exams */
+$currentUser = $this->currentUser();
+$exams = $exams ?? [];
+?>
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold text-primary mb-1">
+                <i class="bi bi-file-earmark-medical me-2"></i>
+                <?= htmlspecialchars($title ?? 'Exames') ?>
+            </h1>
+
+            <p class="text-muted mb-0">
+                <?= htmlspecialchars($subtitle ?? 'Lista de exames cadastrados') ?>
+            </p>
+        </div>
+
+        <?php if ($currentUser && $currentUser->isSecretary()): ?>
+            <a href="<?= route('exams.new') ?>" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i>
+                Novo Exame
+            </a>
+        <?php endif; ?>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+
+            <?php if (empty($exams)): ?>
+
+                <div class="text-center py-5">
+                    <i class="bi bi-file-earmark-x text-muted" style="font-size: 3rem;"></i>
+
+                    <h5 class="mt-3">
+                        Nenhum exame encontrado
+                    </h5>
+
+                    <p class="text-muted">
+                        Quando houver exames cadastrados, eles aparecerão aqui.
+                    </p>
+
+                    <?php if ($currentUser && $currentUser->isSecretary()): ?>
+                        <a href="<?= route('exams.new') ?>" class="btn btn-primary">
+                            Criar primeiro exame
+                        </a>
+                    <?php endif; ?>
+                </div>
+
+            <?php else: ?>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Paciente</th>
+                                <th>Tipo</th>
+                                <th>Data do Exame</th>
+                                <th>Status IA</th>
+                                <th>Verificado</th>
+                                <th>Upload por</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <?php foreach ($exams as $exam): ?>
+                                <?php
+                                    /** @var App\Models\Patient|null $patient */
+                                    $patient = $exam->patient()->get();
+                                    $patientUser = $patient ? $patient->user()->get() : null;
+                                    $examType = $exam->examType()->get();
+                                    $uploadedBy = $exam->uploadedBy()->get();
+
+                                    $statusClass = 'secondary';
+                                    $statusText = $exam->ai_status;
+
+                                    if ($exam->ai_status === App\Models\Exam::STATUS_PENDING) {
+                                        $statusClass = 'warning';
+                                        $statusText = 'Pendente';
+                                    } elseif ($exam->ai_status === App\Models\Exam::STATUS_PROCESSING) {
+                                        $statusClass = 'info';
+                                        $statusText = 'Processando';
+                                    } elseif ($exam->ai_status === App\Models\Exam::STATUS_COMPLETED) {
+                                        $statusClass = 'success';
+                                        $statusText = 'Concluido';
+                                    } elseif ($exam->ai_status === App\Models\Exam::STATUS_FAILED) {
+                                        $statusClass = 'danger';
+                                        $statusText = 'Falhou';
+                                    }
+                                ?>
+
+                                <tr>
+                                    <td>#<?= $exam->id ?></td>
+
+                                    <td>
+                                        <?= $patientUser ? $patientUser->name : 'Paciente nao encontrado' ?>
+                                    </td>
+
+                                    <td>
+                                        <?= $examType ? $examType->name : 'Tipo nao encontrado' ?>
+                                    </td>
+
+                                    <td>
+                                        <?= date('d/m/Y', strtotime($exam->exam_date)) ?>
+                                    </td>
+
+                                    <td>
+                                        <span class="badge text-bg-<?= $statusClass ?>">
+                                            <?= $statusText ?>
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <?php if ($exam->is_verified): ?>
+                                            <span class="badge text-bg-success">Verificado</span>
+                                        <?php else: ?>
+                                            <span class="badge text-bg-secondary">Pendente</span>
+                                        <?php endif; ?>
+                                    </td>
+
+                                    <td>
+                                        <?= $uploadedBy ? $uploadedBy->name : 'Usuario nao encontrado' ?>
+                                    </td>
+                                </tr>
+
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+            <?php endif; ?>
+
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="<?= route('auth.check') ?>" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>
+            Voltar para o painel
+        </a>
+    </div>
+
+</div>
