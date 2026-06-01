@@ -69,16 +69,12 @@ class ExamsController extends Controller
             'source' => Exam::SOURCE_UPLOAD,
         ]);
 
-        if (isset($_FILES['exam_file']) && $_FILES['exam_file']['error'] !== UPLOAD_ERR_NO_FILE) {
-            $uploadService = new ExamUploadService();
+        $uploadService = new ExamUploadService($exam);
 
-            if (!$uploadService->processUpload($_FILES['exam_file'], $exam)) {
-                FlashMessage::danger(implode('<br>', $uploadService->getErrors()));
-                $patientsWithUser = Patient::allWithUser();
-                $examTypes = ExamType::all();
-                $title = 'Anexar Novo Exame';
-                $this->render('exam/new', compact('title', 'exam', 'patientsWithUser', 'examTypes'));
-                return;
+        if (isset($_FILES['exam_file'])) {
+            if (!$uploadService->store($_FILES['exam_file'])) {
+                FlashMessage::danger($exam->errors('file') ?? 'Erro ao enviar o arquivo do exame.');
+                $this->renderNewExamForm($exam);
             }
         }
 
@@ -86,17 +82,82 @@ class ExamsController extends Controller
             FlashMessage::success('Exame PDF anexado com sucesso e enviado para análise.');
             $this->redirectTo(route('exams.index'));
         } else {
-            if (!empty($exam->file_path)) {
-                $fullPath = Constants::rootPath()->join('public' . $exam->file_path);
-                if (file_exists($fullPath)) {
-                    unlink($fullPath);
-                }
-            }
-
-            $patientsWithUser = Patient::allWithUser();
-            $examTypes = ExamType::all();
-            $title = 'Anexar Novo Exame';
-            $this->render('exam/new', compact('title', 'exam', 'patientsWithUser', 'examTypes'));
+            $uploadService->destroyPhysicalFile();
+            FlashMessage::danger('Erro ao salvar os dados do exame.');
+            $this->renderNewExamForm($exam);
         }
+    }
+
+    public function destroy(Request $request): void
+    {
+        $id = (int) $request->getParam('id');
+        $exam = Exam::findById($id);
+
+        if (!$exam) {
+            FlashMessage::danger('Exame não encontrado.');
+            $this->redirectTo(route('exams.index'));
+            return;
+        }
+
+        $uploadService = new ExamUploadService($exam);
+        $uploadService->destroyPhysicalFile();
+
+        if ($exam->destroy()) {
+            FlashMessage::success('Exame excluído com sucesso!');
+        } else {
+            FlashMessage::danger('Não foi possível excluir o exame.');
+        }
+
+        $this->redirectTo(route('exams.index'));
+    }
+
+    public function show(Request $request): void
+    {
+        $id = (int) $request->getParam('id');
+        $exam = Exam::findById($id);
+
+        if (!$exam) {
+            FlashMessage::danger('Exame não encontrado.');
+            $this->redirectTo(route('exams.index'));
+            return;
+        }
+
+        if (!$this->canAccess($exam)) {
+            FlashMessage::danger('Você não tem permissão para ver este exame.');
+            $this->redirectTo(route('exams.index'));
+            return;
+        }
+
+        $title = 'Exame #' . $exam->id;
+        $patient = $exam->patient()->get();
+        $examType = $exam->examType()->get();
+        $uploadedBy = $exam->uploadedBy()->get();
+        $verifiedBy = $exam->is_verified_by ? $exam->verifiedBy()->get() : null;
+
+        $this->render('exam/show', compact('title', 'exam', 'patient', 'examType', 'uploadedBy', 'verifiedBy'));
+    }
+
+    private function canAccess(Exam $exam): bool
+    {
+        $user = $this->currentUser();
+
+        if ($user->isSecretary() || $user->isDoctor()) {
+            return true;
+        }
+
+        if ($user->isPatient()) {
+            $patient = Patient::findByUserId($user->id);
+            return $patient && (int) $exam->patient_id === (int) $patient->id;
+        }
+
+        return false;
+    }
+
+    private function renderNewExamForm(Exam $exam): void
+    {
+        $patientsWithUser = Patient::allWithUser();
+        $examTypes = ExamType::all();
+        $title = 'Anexar Novo Exame';
+        $this->render('exam/new', compact('title', 'exam', 'patientsWithUser', 'examTypes'));
     }
 }

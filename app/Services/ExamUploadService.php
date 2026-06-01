@@ -8,108 +8,110 @@ use RuntimeException;
 
 class ExamUploadService
 {
-    /** @var array{tmp_name?: string, error?: int, size?: int, type?: string} */
     private array $file;
-    /** @var array{allowed_mimes: array<int, string>, max_size: int} */
-    private array $validations = [
-        'allowed_mimes' => ['application/pdf'],
-        'max_size' => 5 * 1024 * 1024 // 5MB
-    ];
-    /** @var array<int, string> */
-    private array $errors = [];
     private string $generatedFileName = '';
 
-    /** @param array{tmp_name?: string, error?: int, size?: int, type?: string} $file */
-    public function processUpload(array $file, Exam $exam): bool
+    private array $rules = [
+        'extension' => 'pdf',
+        'max_size'  => 5 * 1024 * 1024 // 5MB
+    ];
+
+    public function __construct(private Exam $exam)
+    {
+    }
+
+    /** @param array{tmp_name?: string, error?: int, size?: int, type?: string, name?: string} $file */
+    public function store(array $file): bool
     {
         $this->file = $file;
 
-        if (!$this->isValidUpload()) {
+        if (!$this->isValidPdf()) {
             return false;
         }
 
-        $this->generateUniqueFileName();
+        $this->generatedFileName = 'exam_' . uniqid() . '.pdf';
 
-        if ($this->moveFile($exam)) {
-            $exam->file_path = $this->getRelativeSavedPath($exam);
+        if ($this->moveFile()) {
+            $this->exam->file_path = $this->getRelativeSavedPath();
             return true;
         }
 
         return false;
     }
 
-    /** @return array<int, string> */
-    public function getErrors(): array
+    public function destroyPhysicalFile(): void
     {
-        return $this->errors;
+        $path = $this->exam->file_path;
+        if (empty($path)) {
+            return;
+        }
+
+        $fullPath = Constants::rootPath()->join('public' . $path);
+        if (file_exists($fullPath)) {
+            @unlink((string) $fullPath);
+        }
     }
 
-    private function moveFile(Exam $exam): bool
+    private function moveFile(): bool
     {
-        $tempPath = $this->file['tmp_name'];
+        $tempPath = $this->file['tmp_name'] ?? '';
         if (empty($tempPath)) {
             return false;
         }
 
-        $destinationPath = $this->getAbsoluteDestinationPath($exam);
-
+        $destinationPath = $this->getAbsoluteDestinationPath();
         $resp = move_uploaded_file($tempPath, $destinationPath);
 
         if (!$resp) {
             $error = error_get_last();
-            throw new RuntimeException('Falha ao mover arquivo de exame: ' . ($error['message'] ?? 'Erro desconhecido'));
+            throw new RuntimeException('Falha ao mover arquivo: ' . ($error['message'] ?? 'Erro desconhecido'));
         }
 
         return true;
     }
 
-    private function generateUniqueFileName(): void
+    private function getAbsoluteDestinationPath(): string
     {
-        $this->generatedFileName = 'exam_' . uniqid() . '.pdf';
+        return $this->storeDir() . $this->generatedFileName;
     }
 
-    private function getAbsoluteDestinationPath(Exam $exam): string
+    private function getRelativeSavedPath(): string
     {
-        return $this->storeDir($exam) . $this->generatedFileName;
+        return $this->baseDir() . $this->generatedFileName;
     }
 
-    private function getRelativeSavedPath(Exam $exam): string
+    private function baseDir(): string
     {
-        return $this->baseDir($exam) . $this->generatedFileName;
+        return "/assets/uploads/exams/paciente_{$this->exam->patient_id}/";
     }
 
-    private function baseDir(Exam $exam): string
+    private function storeDir(): string
     {
-        return "/assets/uploads/exams/paciente_{$exam->patient_id}/";
-    }
-
-    private function storeDir(Exam $exam): string
-    {
-        $path = Constants::rootPath()->join('public' . $this->baseDir($exam));
+        $path = Constants::rootPath()->join('public' . $this->baseDir());
         if (!is_dir($path)) {
             mkdir(directory: $path, recursive: true);
         }
         return $path;
     }
 
-    private function isValidUpload(): bool
+    private function isValidPdf(): bool
     {
-        if ($this->file['error'] !== UPLOAD_ERR_OK) {
-             $this->errors[] = "Erro interno no upload do arquivo.";
+        if (!isset($this->file['error']) || $this->file['error'] !== UPLOAD_ERR_OK) {
+             $this->exam->addError('file', 'Erro no upload ou arquivo não enviado/corrompido.');
              return false;
         }
 
-        if ($this->file['size'] > $this->validations['max_size']) {
-            $this->errors[] = 'O arquivo excede o limite de 5MB.';
-            return false;
+        $fileNameSplitted  = explode('.', $this->file['name'] ?? '');
+        $fileExtension = strtolower(end($fileNameSplitted));
+        
+        if ($fileExtension !== $this->rules['extension']) {
+            $this->exam->addError('file', 'Formato inválido. Apenas PDFs são aceitos.');
         }
 
-        $mimeType = $this->file['type'];
-        if (!in_array($mimeType, $this->validations['allowed_mimes'])) {
-            $this->errors[] = 'Formato inválido. O sistema aceita exclusivamente arquivos PDF.';
-            return false;
+        if (($this->file['size'] ?? 0) > $this->rules['max_size']) {
+            $this->exam->addError('file', 'O arquivo excede o limite de 5MB.');
         }
 
-        return empty($this->errors);
+        return $this->exam->errors('file') === null;
     }
 }
