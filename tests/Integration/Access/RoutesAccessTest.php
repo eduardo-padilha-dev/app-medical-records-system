@@ -35,7 +35,7 @@ class RoutesAccessTest extends TestCase
 
     public function test_protected_routes_should_redirect_to_login(): void
     {
-        $routes = ['/', '/admin', '/doctor', '/patient', '/secretary'];
+        $routes = ['/', '/admin', '/doctor', '/patient', '/secretary', '/exams', '/exams/new', '/exams/1'];
 
         foreach ($routes as $route) {
             $response = $this->client->get($route);

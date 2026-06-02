@@ -1,0 +1,155 @@
+<?php
+/** @var string $title */
+/** @var App\Models\Exam $exam */
+/** @var App\Models\Patient $patient */
+/** @var App\Models\ExamType $examType */
+/** @var App\Models\User $uploadedBy */
+/** @var App\Models\Doctor|null $verifiedBy */
+
+$currentUser = $this->currentUser();
+$patientUser = $patient ? $patient->user()->get() : null;
+$verifiedByUser = $verifiedBy ? $verifiedBy->user()->get() : null;
+
+$hasFile = $exam->file_path !== null && $exam->file_path !== '';
+
+$statusClass = 'secondary';
+$statusText = $exam->ai_status;
+
+if ($exam->ai_status === App\Models\Exam::STATUS_PENDING) {
+    $statusClass = 'warning';
+    $statusText = 'Pendente';
+} elseif ($exam->ai_status === App\Models\Exam::STATUS_PROCESSING) {
+    $statusClass = 'info';
+    $statusText = 'Processando';
+} elseif ($exam->ai_status === App\Models\Exam::STATUS_COMPLETED) {
+    $statusClass = 'success';
+    $statusText = 'Concluído';
+} elseif ($exam->ai_status === App\Models\Exam::STATUS_FAILED) {
+    $statusClass = 'danger';
+    $statusText = 'Falhou';
+}
+?>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold text-primary mb-1">
+                <i class="bi bi-file-earmark-medical me-2"></i>
+                <?= htmlspecialchars($title ?? 'Detalhes do Exame') ?>
+            </h1>
+
+            <p class="text-muted mb-0">
+                Detalhes completos do exame.
+            </p>
+        </div>
+
+        <span class="badge text-bg-<?= $statusClass ?> fs-6">
+            <?= $statusText ?>
+        </span>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+
+            <div class="row g-4">
+
+                <div class="col-md-6">
+                    <div class="p-3 border rounded bg-light h-100">
+                        <small class="text-muted d-block mb-1">Paciente</small>
+                        <strong>
+                            <?= htmlspecialchars($patientUser ? $patientUser->name : 'N/A') ?>
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 border rounded bg-light h-100">
+                        <small class="text-muted d-block mb-1">Tipo de Exame</small>
+                        <strong>
+                            <?= htmlspecialchars($examType ? $examType->name : 'N/A') ?>
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 border rounded bg-light h-100">
+                        <small class="text-muted d-block mb-1">Data do Exame</small>
+                        <strong>
+                            <?= date('d/m/Y', strtotime($exam->exam_date)) ?>
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 border rounded bg-light h-100">
+                        <small class="text-muted d-block mb-1">Status de Verificação</small>
+                        <strong>
+                            <?php if ($exam->is_verified): ?>
+                                Verificado por <?= htmlspecialchars($verifiedByUser ? $verifiedByUser->name : 'N/A') ?>
+                            <?php else: ?>
+                                Pendente
+                            <?php endif; ?>
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 border rounded bg-light h-100">
+                        <small class="text-muted d-block mb-1">Enviado por</small>
+                        <strong>
+                            <?= htmlspecialchars($uploadedBy ? $uploadedBy->name : 'N/A') ?>
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 border rounded bg-light h-100">
+                        <small class="text-muted d-block mb-1">Origem</small>
+                        <strong>
+                            <?= htmlspecialchars(ucfirst($exam->source)) ?>
+                        </strong>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <div class="p-3 border rounded bg-light h-100">
+                        <small class="text-muted d-block mb-1">Resultados da IA</small>
+                        
+                        <?php if ($exam->ai_status === App\Models\Exam::STATUS_COMPLETED && !empty($exam->extracted_data_json)): ?>
+                            <?php $extractedData = json_decode($exam->extracted_data_json); ?>
+                            <pre class="bg-white p-3 rounded border mt-2 mb-0"><code><?= htmlspecialchars($extractedData ? json_encode($extractedData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : $exam->extracted_data_json) ?></code></pre>
+                        <?php else: ?>
+                            <strong>Resultados ainda não disponíveis ou pendentes de processamento.</strong>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+            </div>
+
+            <hr class="my-4">
+
+            <div class="d-flex justify-content-between">
+                <a href="<?= route('exams.index') ?>" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Voltar
+                </a>
+                
+                <div class="d-flex gap-2">
+                    <?php if ($hasFile): ?>
+                        <a href="<?= htmlspecialchars($exam->file_path) ?>" target="_blank" class="btn btn-primary">
+                            <i class="bi bi-file-pdf me-1"></i>
+                            Ver PDF
+                        </a>
+                    <?php else: ?>
+                        <span class="btn btn-outline-danger disabled">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            Arquivo indisponível
+                        </span>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>

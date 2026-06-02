@@ -46,4 +46,9 @@ class Doctor extends Model
     {
         return $this->hasMany(Appointment::class, 'doctor_id');
     }
+
+    public function exams(): HasMany
+    {
+        return $this->hasMany(Exam::class, 'is_verified_by');
+    }
 }

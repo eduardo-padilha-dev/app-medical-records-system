@@ -8,6 +8,7 @@ use App\Controllers\PatientsController;
 use App\Controllers\SecretariesController;
 use Core\Router\Route;
 use App\Controllers\AppointmentsController;
+use App\Controllers\ExamsController;
 
 // Authentication
 Route::get('/', [AuthenticationsController::class, 'checkLogin'])->name('auth.check');
@@ -57,6 +58,15 @@ Route::middleware('auth')->group(function () {
 
         Route::delete('/appointments/{id}', [AppointmentsController::class, 'destroy'])
             ->name('appointments.destroy');
+
+        Route::get('/exams/new', [ExamsController::class, 'new'])
+            ->name('exams.new');
+
+        Route::post('/exams', [ExamsController::class, 'create'])
+            ->name('exams.create');
+
+        Route::delete('/exams/{id}', [ExamsController::class, 'destroy'])
+            ->name('exams.destroy');
     });
 
     Route::middleware('patient')->group(function () {
@@ -77,4 +87,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/appointments/{id}', [AppointmentsController::class, 'show'])
         ->name('appointments.show');
+
+    Route::get('/exams', [ExamsController::class, 'index'])
+        ->name('exams.index');
+
+    Route::get('/exams/{id}', [ExamsController::class, 'show'])
+        ->name('exams.show');
 });
