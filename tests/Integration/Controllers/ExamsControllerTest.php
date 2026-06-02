@@ -24,28 +24,52 @@ class ExamsControllerTest extends ControllerTestCase
         parent::setUp();
 
         $this->secretaryUser = new User([
-            'name' => 'Sec', 'email' => 'sec@test.com', 'cpf' => '00000000001', 'password' => '123', 'password_confirmation' => '123'
+            'name' => 'Sec',
+            'email' => 'sec@test.com',
+            'cpf' => '00000000001',
+            'password' => '123',
+            'password_confirmation' => '123'
         ]);
         $this->secretaryUser->save();
         $sec = new Secretary(['user_id' => $this->secretaryUser->id]);
         $sec->save();
 
         $this->patientUser = new User([
-            'name' => 'Pat', 'email' => 'pat@test.com', 'cpf' => '00000000002', 'password' => '123', 'password_confirmation' => '123'
+            'name' => 'Pat',
+            'email' => 'pat@test.com',
+            'cpf' => '00000000002',
+            'password' => '123',
+            'password_confirmation' => '123'
         ]);
         $this->patientUser->save();
-        $this->patient = new Patient(['user_id' => $this->patientUser->id, 'birth_date' => '2000-01-01', 'phone' => '11999999999']);
+        $this->patient = new Patient(['
+        user_id' => $this->patientUser->id,
+        'birth_date' => '2000-01-01',
+        'phone' => '11999999999'
+        ]);
         $this->patient->save();
 
         $this->otherPatientUser = new User([
-            'name' => 'Pat2', 'email' => 'pat2@test.com', 'cpf' => '00000000003', 'password' => '123', 'password_confirmation' => '123'
+            'name' => 'Pat2',
+            'email' => 'pat2@test.com',
+            'cpf' => '00000000003',
+            'password' => '123',
+            'password_confirmation' => '123'
         ]);
         $this->otherPatientUser->save();
-        $otherPatient = new Patient(['user_id' => $this->otherPatientUser->id, 'birth_date' => '2000-01-01', 'phone' => '11999999999']);
+        $otherPatient = new Patient([
+            'user_id' => $this->otherPatientUser->id,
+            'birth_date' => '2000-01-01',
+            'phone' => '11999999999'
+        ]);
         $otherPatient->save();
 
         $this->doctorUser = new User([
-            'name' => 'Doc', 'email' => 'doc@test.com', 'cpf' => '00000000004', 'password' => '123', 'password_confirmation' => '123'
+            'name' => 'Doc',
+            'email' => 'doc@test.com',
+            'cpf' => '00000000004',
+            'password' => '123',
+            'password_confirmation' => '123'
         ]);
         $this->doctorUser->save();
         $this->doctor = new Doctor(['user_id' => $this->doctorUser->id, 'license_number' => 'CRM123', 'specialty' => 'Geral']);

@@ -72,7 +72,7 @@ class ExamCest extends BaseAcceptanceCest
 
         $page->selectOption('select[name="patient_id"]', (string) $this->patient->id);
         $page->selectOption('select[name="exam_type_id"]', (string) $this->examType->id);
-        $page->attachFile('input[name="exam_file"]', codecept_data_dir('exam_test.pdf'));
+        $page->attachFile('input[name="exam_file"]', 'exam_test.pdf');
         $page->click('Anexar exame');
 
         $exams = Exam::findByPatientId($this->patient->id);
