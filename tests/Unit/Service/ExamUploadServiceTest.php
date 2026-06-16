@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Models;
+namespace Tests\Unit\Service;
 
 use App\Models\Exam;
 use App\Models\ExamType;
