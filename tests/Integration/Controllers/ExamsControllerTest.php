@@ -42,8 +42,8 @@ class ExamsControllerTest extends ControllerTestCase
             'password_confirmation' => '123'
         ]);
         $this->patientUser->save();
-        $this->patient = new Patient(['
-        user_id' => $this->patientUser->id,
+        $this->patient = new Patient([
+        'user_id' => $this->patientUser->id,
         'birth_date' => '2000-01-01',
         'phone' => '11999999999'
         ]);

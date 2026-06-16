@@ -12,9 +12,9 @@ class ExamUploadService
     private array $file = [];
     private string $generatedFileName = '';
 
-    /** @var array{extension: string, max_size: int} */
+    /** @var array{extensions: string[], max_size: int} */
     private array $rules = [
-        'extension' => 'pdf',
+        'extensions' => ['application/pdf'],
         'max_size'  => 5 * 1024 * 1024 // 5MB
     ];
 
@@ -103,17 +103,18 @@ class ExamUploadService
              return false;
         }
 
-        $fileNameSplitted  = explode('.', $this->file['name'] ?? '');
-        $fileExtension = strtolower(end($fileNameSplitted));
-
-        if ($fileExtension !== $this->rules['extension']) {
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $realMime = $finfo->file($this->file['tmp_name']);
+        if (!in_array($realMime, $this->rules['extensions'])) {
             $this->exam->addError('file', 'Formato inválido. Apenas PDFs são aceitos.');
+            return false;
         }
 
         if (($this->file['size'] ?? 0) > $this->rules['max_size']) {
             $this->exam->addError('file', 'O arquivo excede o limite de 5MB.');
+            return false;
         }
 
-        return $this->exam->errors('file') === null;
+        return true;
     }
 }

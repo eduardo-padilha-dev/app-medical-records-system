@@ -71,11 +71,16 @@ class ExamsController extends Controller
 
         $uploadService = new ExamUploadService($exam);
 
-        if (isset($_FILES['exam_file'])) {
-            if (!$uploadService->store($_FILES['exam_file'])) {
-                FlashMessage::danger($exam->errors('file') ?? 'Erro ao enviar o arquivo do exame.');
-                $this->renderNewExamForm($exam);
-            }
+        if (!isset($_FILES['exam_file']) || $_FILES['exam_file']['error'] === UPLOAD_ERR_NO_FILE) {
+            FlashMessage::danger('É necessário enviar um arquivo PDF.');
+            $this->renderNewExamForm($exam);
+            return;
+        }
+
+        if (!$uploadService->store($_FILES['exam_file'])) {
+            FlashMessage::danger($exam->errors('file') ?? 'Erro ao enviar o arquivo do exame.');
+            $this->renderNewExamForm($exam);
+            return;
         }
 
         if ($exam->save()) {
