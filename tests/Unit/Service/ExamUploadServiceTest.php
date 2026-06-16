@@ -1,10 +1,11 @@
 <?php
 
-namespace Tests\Unit\Models;
+namespace Tests\Unit\Service;
 
 use App\Models\Exam;
 use App\Models\ExamType;
 use App\Models\Patient;
+use App\Models\Secretary;
 use App\Models\User;
 use App\Services\ExamUploadService;
 use Core\Constants\Constants;
@@ -15,47 +16,49 @@ class ExamUploadServiceTest extends TestCase
 {
     private Exam $exam;
     private Patient $patient;
+    private Secretary $secretary;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $user = new User([
+        $userPatient = new User([
+            'id' => 1,
             'name' => 'Paciente Serviço',
-            'email' => 'service.exam@test.com',
+            'email' => 'paciente@test.com',
             'cpf' => '33333333333',
             'password' => '123456',
             'password_confirmation' => '123456',
         ]);
-        $user->save();
-
         $this->patient = new Patient([
-            'user_id' => $user->id,
+            'user_id' => $userPatient->id,
             'birth_date' => '1990-01-01',
             'phone' => '11988888888',
         ]);
-        $this->patient->save();
 
-        $uploadBy = new User([
-            'name' => 'Usuário Upload',
-            'email' => 'upload.exam@test.com',
+
+        $userSecretary = new User([
+            'id' => 2,
+            'name' => 'Secretaria',
+            'email' => 'secretaria@test.com',
             'cpf' => '44444444444',
             'password' => '123456',
             'password_confirmation' => '123456',
         ]);
-        $uploadBy->save();
+        $this->secretary = new Secretary([ 'user_id' => $userSecretary->id ]);
 
         $examType = new ExamType([
+            'id' => 1,
             'name' => 'Raio-X',
             'description' => 'Exame de imagem',
             'ai_prompt_template' => 'Leia o exame',
         ]);
-        $examType->save();
 
         $this->exam = new Exam([
+            'id' => 1,
             'patient_id' => $this->patient->id,
             'appointment_id' => null,
-            'upload_by' => $uploadBy->id,
+            'upload_by' => $this->secretary->id,
             'exam_type_id' => $examType->id,
             'exam_date' => '2026-06-01',
             'is_verified' => 0,
@@ -64,7 +67,6 @@ class ExamUploadServiceTest extends TestCase
             'file_path' => '/assets/uploads/exams/paciente_' . $this->patient->id . '/old_exam.pdf',
             'ai_status' => Exam::STATUS_PENDING,
         ]);
-        $this->exam->save();
     }
 
     private function createService(): ExamUploadService
@@ -75,14 +77,13 @@ class ExamUploadServiceTest extends TestCase
     public function test_store_rejects_non_pdf_files(): void
     {
         $service = $this->createService();
-
+        $invalidPdf = Constants::rootPath()->join('tests/files/invalidPdf.pdf');
         $result = $service->store([
             'error' => UPLOAD_ERR_OK,
-            'name' => 'arquivo.txt',
-            'size' => 100,
-            'tmp_name' => tempnam(sys_get_temp_dir(), 'exam'),
+            'name' => 'arquivo.pdf',
+            'size' => filesize($invalidPdf),
+            'tmp_name' => $invalidPdf,
         ]);
-
         $this->assertFalse($result);
         $this->assertEquals('Formato inválido. Apenas PDFs são aceitos.', $this->exam->errors('file'));
     }
@@ -90,12 +91,12 @@ class ExamUploadServiceTest extends TestCase
     public function test_store_rejects_files_above_size_limit(): void
     {
         $service = $this->createService();
-
+        $invalidPdf = Constants::rootPath()->join('tests/files/validPdf.pdf');
         $result = $service->store([
             'error' => UPLOAD_ERR_OK,
             'name' => 'arquivo.pdf',
             'size' => 5 * 1024 * 1024 + 1,
-            'tmp_name' => tempnam(sys_get_temp_dir(), 'exam'),
+            'tmp_name' => $invalidPdf,
         ]);
 
         $this->assertFalse($result);
